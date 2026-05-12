@@ -161,7 +161,7 @@ export default function ScheduleRoute() {
 
   return (
     <section className="mx-auto h-full max-w-md overflow-y-auto">
-      <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
+      <header className="border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
         <div className="flex items-center justify-between px-4 pb-3 pt-5">
           <h1 className="text-2xl font-semibold">Ditt schema</h1>
           {savedEvents.length > 0 && (

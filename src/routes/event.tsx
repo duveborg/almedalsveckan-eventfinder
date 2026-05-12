@@ -386,8 +386,13 @@ export default function EventDetailRoute() {
                   )}
                   {p.organization && (
                     <span className="text-[var(--color-fg-dim)]">
-                      {' '}
-                      · {p.organization}
+                      {' · '}
+                      <Link
+                        to={`/now?organizations=${encodeURIComponent(p.organization)}`}
+                        className="text-[var(--color-accent)] underline-offset-2 hover:underline"
+                      >
+                        {p.organization}
+                      </Link>
                     </span>
                   )}
                 </li>

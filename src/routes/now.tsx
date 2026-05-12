@@ -32,6 +32,23 @@ function topEventTypes(events: EnrichedEvent[], n: number): string[] {
     .map(([t]) => t);
 }
 
+function topOrganizations(events: EnrichedEvent[], n: number): string[] {
+  const counts = new Map<string, number>();
+  for (const e of events) {
+    const seen = new Set<string>();
+    for (const p of e.persons ?? []) {
+      const o = typeof p.organization === "string" ? p.organization.trim() : "";
+      if (!o || seen.has(o)) continue;
+      seen.add(o);
+      counts.set(o, (counts.get(o) ?? 0) + 1);
+    }
+  }
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n)
+    .map(([t]) => t);
+}
+
 const WEEK_DAYS = [
   { date: "2026-06-22", label: "Mån" },
   { date: "2026-06-23", label: "Tis" },
@@ -82,6 +99,8 @@ export default function NowRoute() {
   const [foodParam, setFoodParam] = useUrlParam("food", "0");
   const [activeTopics, setActiveTopics] = useUrlSet("topics");
   const [activeEventTypes, setActiveEventTypes] = useUrlSet("types");
+  const [activeOrganizations, setActiveOrganizations] =
+    useUrlSet("organizations");
   const [actualNow, setActualNow] = useState(now());
 
   const selectedDate: string | null = dateParam || null;
@@ -110,6 +129,12 @@ export default function NowRoute() {
     else next.add(t);
     setActiveEventTypes(next);
   };
+  const toggleOrganization = (o: string) => {
+    const next = new Set(activeOrganizations);
+    if (next.has(o)) next.delete(o);
+    else next.add(o);
+    setActiveOrganizations(next);
+  };
 
   useEffect(() => {
     loadEvents()
@@ -131,6 +156,10 @@ export default function NowRoute() {
 
   const topicChips = useMemo(() => topTopics(events, 20), [events]);
   const eventTypeChips = useMemo(() => topEventTypes(events, 20), [events]);
+  const organizationChips = useMemo(
+    () => topOrganizations(events, 40),
+    [events],
+  );
 
   const visible = useMemo(() => {
     const startMs = cursor.getTime();
@@ -148,13 +177,26 @@ export default function NowRoute() {
           (!e.eventType || !activeEventTypes.has(e.eventType))
         )
           return false;
+        if (
+          activeOrganizations.size > 0 &&
+          !(e.persons ?? []).some((p) => activeOrganizations.has(p.organization))
+        )
+          return false;
         return true;
       })
       .sort(
         (a, b) =>
           new Date(a.startISO).getTime() - new Date(b.startISO).getTime(),
       );
-  }, [events, cursor, cursorEnd, foodOnly, activeTopics, activeEventTypes]);
+  }, [
+    events,
+    cursor,
+    cursorEnd,
+    foodOnly,
+    activeTopics,
+    activeEventTypes,
+    activeOrganizations,
+  ]);
 
   if (error)
     return (
@@ -318,6 +360,54 @@ export default function NowRoute() {
                   </button>
                 );
               })}
+            </div>
+          </div>
+        )}
+        {organizationChips.length > 0 && (
+          <div className="px-4 pb-3">
+            <div className="mb-1 flex items-baseline justify-between text-[11px]">
+              <span className="text-[var(--color-fg-dim)]">Organisation</span>
+              {activeOrganizations.size > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveOrganizations(new Set())}
+                  className="text-[var(--color-fg-dim)] underline"
+                >
+                  Rensa
+                </button>
+              )}
+            </div>
+            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
+              {organizationChips.map((o) => {
+                const active = activeOrganizations.has(o);
+                return (
+                  <button
+                    key={o}
+                    type="button"
+                    onClick={() => toggleOrganization(o)}
+                    className={`rounded-full px-3 py-1.5 whitespace-nowrap ${
+                      active
+                        ? "bg-[var(--color-accent)] text-white"
+                        : "bg-[var(--color-surface)] text-[var(--color-fg-dim)]"
+                    }`}
+                  >
+                    {o}
+                  </button>
+                );
+              })}
+              {activeOrganizations.size > 0 &&
+                Array.from(activeOrganizations)
+                  .filter((o) => !organizationChips.includes(o))
+                  .map((o) => (
+                    <button
+                      key={o}
+                      type="button"
+                      onClick={() => toggleOrganization(o)}
+                      className="rounded-full bg-[var(--color-accent)] px-3 py-1.5 whitespace-nowrap text-white"
+                    >
+                      {o}
+                    </button>
+                  ))}
             </div>
           </div>
         )}
