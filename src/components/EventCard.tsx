@@ -45,13 +45,15 @@ export function EventCard({ event, now }: Props) {
           {now && (
             <>
               <span>·</span>
-              <span className="text-[var(--color-accent)]">
+              <span className="font-semibold text-[var(--color-accent)]">
                 {relativeMinutes(event, now)}
               </span>
             </>
           )}
         </div>
-        <h3 className="text-sm font-semibold leading-snug">{event.title}</h3>
+        <h3 className="text-sm font-semibold leading-snug text-[var(--color-fg)]">
+          {event.title}
+        </h3>
         {event.location?.name && (
           <div className="mt-1 text-xs text-[var(--color-fg-dim)]">
             📍 {event.location.name}
@@ -62,8 +64,7 @@ export function EventCard({ event, now }: Props) {
             {event.topics.slice(0, 3).map((t) => (
               <span
                 key={t}
-                className="rounded-full px-2 py-0.5 text-[10px]"
-                style={{ background: event.color?.itemSecondary, color: event.color?.main }}
+                className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-0.5 text-[10px] text-[var(--color-fg-dim)]"
               >
                 {t}
               </span>

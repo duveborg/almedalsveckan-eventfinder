@@ -86,13 +86,7 @@ export default function EventDetailRoute() {
       >
         ← Tillbaka
       </Link>
-      <header
-        className="mb-4 rounded-xl p-4"
-        style={{
-          background: event.color?.item,
-          color: event.color?.main,
-        }}
-      >
+      <header className="mb-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
         <div className="mb-2 flex items-start justify-between gap-3">
           <h1 className="text-xl font-semibold leading-tight text-[var(--color-fg)]">
             {event.title}
@@ -110,7 +104,7 @@ export default function EventDetailRoute() {
             {saved ? '★' : '☆'}
           </button>
         </div>
-        <div className="text-xs">
+        <div className="text-xs text-[var(--color-fg-dim)]">
           {event.weekDayName} {event.shortDate} · {event.startTime}–{event.endTime}
         </div>
         {event.location?.name && (
@@ -122,7 +116,7 @@ export default function EventDetailRoute() {
             }`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-1 inline-block text-xs underline-offset-2 hover:underline"
+            className="mt-1 inline-block text-xs text-[var(--color-accent)] underline-offset-2 hover:underline"
           >
             📍 {event.location.name}
           </a>
@@ -132,7 +126,7 @@ export default function EventDetailRoute() {
             {event.topics.map((t) => (
               <span
                 key={t}
-                className="rounded-full bg-[var(--color-bg)]/40 px-2 py-0.5 text-[10px]"
+                className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-0.5 text-[10px] text-[var(--color-fg-dim)]"
               >
                 {t}
               </span>
@@ -155,7 +149,7 @@ export default function EventDetailRoute() {
           <h2 className="mb-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
             Beskrivning
           </h2>
-          <p className="text-sm whitespace-pre-line text-[var(--color-fg-dim)]">
+          <p className="text-sm whitespace-pre-line text-[var(--color-fg)]">
             {event.description}
           </p>
         </section>

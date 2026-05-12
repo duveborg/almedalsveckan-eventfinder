@@ -58,7 +58,7 @@ function toGeoJSON(events: EnrichedEvent[]): GeoJSON.FeatureCollection<
         },
         properties: {
           id: e.id,
-          color: e.color?.main ?? '#f8651f',
+          color: e.color?.main ?? '#ff7a3a',
         },
       })),
   }
@@ -115,8 +115,8 @@ export default function MapRoute() {
         source: 'events',
         filter: ['has', 'point_count'],
         paint: {
-          'circle-color': '#f8651f',
-          'circle-opacity': 0.85,
+          'circle-color': '#ff7a3a',
+          'circle-opacity': 0.9,
           'circle-radius': [
             'step',
             ['get', 'point_count'],
