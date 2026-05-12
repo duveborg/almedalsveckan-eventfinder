@@ -168,7 +168,7 @@ export default function ScheduleRoute() {
               onClick={() => downloadIcs(savedEvents)}
               className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]"
             >
-              Exportera .ics
+              Exportera till kalender
             </button>
           )}
         </div>

@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+# Almedalen 2026
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A faster way to navigate the Almedalsveckan 2026 program. Browse the map, build a schedule, search, or see what's happening right now.
 
-Currently, two official plugins are available:
+Built with React, TypeScript and Vite. The UI is in Swedish.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## App
 
-## React Compiler
+- **Nu** — events happening right now, nearby first.
+- **Karta** — MapLibre map of all events.
+- **Ditt schema** — events you've saved.
+- **För dig** — recommendations based on what you've saved, using OpenAI embeddings projected with UMAP.
+- **Sök** — full-text search via MiniSearch.
+- **Om** — about + share.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Stack: React 19, React Router, Zustand, Tailwind v4, MapLibre GL, MiniSearch, UMAP.
 
-## Expanding the ESLint configuration
+## Develop
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Other scripts:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```sh
+npm run build      # type-check + vite build
+npm run lint
+npm run preview
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Data pipeline
+
+The app reads a single static `public/events.json` plus precomputed embeddings and a UMAP projection. Regenerate with:
+
+```sh
+npm run data           # scrape + enrich → public/events.json
+npm run data:cache     # same, but reuse data/events-raw.json
+npm run embed          # OpenAI embeddings → public/embeddings.{bin,meta.json}
+npm run umap           # 2D projection → public/umap.json
+```
+
+`embed` requires `OPENAI_API_KEY` in the environment.
+
+## Layout
+
+```
+scripts/   data pipeline (scrape, enrich, embed, umap)
+src/
+  routes/  one file per tab
+  data/    types, loading, search, galaxy (umap), food
+  store/   zustand stores (schedule, location)
+  lib/     small utilities
+public/    static data consumed by the app
 ```
