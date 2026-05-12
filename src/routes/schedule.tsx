@@ -153,12 +153,15 @@ export default function ScheduleRoute() {
     () => suggestNext(savedEvents, events, day, savedIds),
     [savedEvents, events, day, savedIds],
   )
+  const visibleSuggestions = suggestions.filter(
+    (s) => !savedIds.includes(s.next.id),
+  )
 
   return (
     <section className="mx-auto h-full max-w-md overflow-y-auto">
       <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
         <div className="flex items-center justify-between px-4 pb-3 pt-5">
-          <h1 className="text-2xl font-semibold">Schema</h1>
+          <h1 className="text-2xl font-semibold">Ditt schema</h1>
           {savedEvents.length > 0 && (
             <button
               type="button"
@@ -235,13 +238,13 @@ export default function ScheduleRoute() {
           </ul>
         )}
 
-        {suggestions.length > 0 && (
+        {visibleSuggestions.length > 0 && (
           <div className="mt-8">
             <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-fg-dim)]">
               Förslag — direkt efter
             </h2>
             <ul className="space-y-2">
-              {suggestions.map((s) => (
+              {visibleSuggestions.map((s) => (
                 <li key={s.for.id + '_' + s.next.id}>
                   <div className="mb-1 px-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
                     {Math.round(s.gapMin)} min efter {s.for.title}

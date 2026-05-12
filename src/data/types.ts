@@ -26,6 +26,21 @@ export interface EventColor {
   itemSecondary: string
 }
 
+export interface Environmental {
+  food?: string
+  foodLocallyProduced?: string
+  serviceCooking?: string
+  water?: string
+  stationary?: string
+  print?: string
+  flyer?: string
+  battery?: string
+  recycling?: string
+  disposable?: string
+  sourceSorting?: string
+  certified?: string
+}
+
 export interface EventUrls {
   url1?: string
   url2?: string
@@ -58,7 +73,8 @@ export interface RawEvent {
   topic: string | null
   topic2: string | null
   languages: string | null
-  accessibility: string | null
+  accessibility: string | string[] | null
+  environmental: Environmental | null
   urls: EventUrls | null
   interactiveLink: string
   interactiveLinkDescription: string
