@@ -5,7 +5,7 @@ import { useLocation } from './store/location'
 const tabs = [
   { to: '/now', label: 'Nu' },
   { to: '/map', label: 'Karta' },
-  { to: '/schedule', label: 'Schema' },
+  { to: '/schedule', label: 'Ditt schema' },
   { to: '/for-dig', label: 'För dig' },
   { to: '/search', label: 'Sök' },
   { to: '/about', label: 'Om' },

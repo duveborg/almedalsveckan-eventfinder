@@ -52,7 +52,7 @@ export default function ForDigRoute() {
   return (
     <section className="mx-auto h-full max-w-md overflow-y-auto">
       <header className="border-b border-[var(--color-border)] px-4 pb-3 pt-5">
-        <h1 className="text-2xl font-semibold">För dig</h1>
+        <h1 className="text-2xl font-semibold">Rekommendationer för dig</h1>
         <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
           {savedIds.length === 0
             ? 'Spara event i schemat så hittar vi liknande åt dig.'
