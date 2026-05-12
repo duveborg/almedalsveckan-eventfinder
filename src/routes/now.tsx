@@ -149,6 +149,12 @@ export default function NowRoute() {
         </div>
         {selectedDate !== null && (
           <div className="px-4 pb-3">
+            <div className="mb-1 flex items-baseline justify-between text-[11px]">
+              <span className="text-[var(--color-fg-dim)]">Från klockan...</span>
+              <span className="font-medium text-[var(--color-fg)]">
+                {String(hour).padStart(2, '0')}:00
+              </span>
+            </div>
             <input
               type="range"
               min={7}
@@ -159,9 +165,6 @@ export default function NowRoute() {
             />
             <div className="mt-1 flex justify-between text-[10px] text-[var(--color-fg-dim)]">
               <span>07</span>
-              <span className="text-[var(--color-fg)]">
-                {String(hour).padStart(2, '0')}:00
-              </span>
               <span>22</span>
             </div>
           </div>
