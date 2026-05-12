@@ -24,3 +24,37 @@ body,
 body {
   margin: 0;
 }
+
+.range-dual {
+  pointer-events: none;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.range-dual::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.range-dual::-moz-range-track {
+  background: transparent;
+}
+.range-dual::-webkit-slider-thumb {
+  pointer-events: auto;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg);
+  cursor: pointer;
+  margin-top: -7px;
+}
+.range-dual::-moz-range-thumb {
+  pointer-events: auto;
+  height: 16px;
+  width: 16px;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg);
+  cursor: pointer;
+}

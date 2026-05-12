@@ -15,46 +15,60 @@ const WEEK_DAYS = [
 const WEEK_START_MS = new Date('2026-06-22T00:00:00+02:00').getTime()
 const WEEK_END_MS = new Date('2026-06-26T23:59:00+02:00').getTime()
 
-type WindowMin = 60 | 180 | 360 | 1440
+const HOUR_MIN = 7
+const HOUR_MAX = 23
 
-const WINDOWS: { label: string; min: WindowMin }[] = [
-  { label: '1 h', min: 60 },
-  { label: '3 h', min: 180 },
-  { label: '6 h', min: 360 },
-  { label: 'Hela dagen', min: 1440 },
-]
+function hourToDate(date: string, hour: number): Date {
+  return new Date(
+    `${date}T${String(hour).padStart(2, '0')}:00:00+02:00`,
+  )
+}
 
-function chosenCursor(
+function chosenWindow(
   selectedDate: string | null,
-  hour: number,
+  hourStart: number,
+  hourEnd: number,
   actualNow: Date,
-): Date {
+): { start: Date; end: Date } {
   const t = actualNow.getTime()
   if (selectedDate === null) {
-    if (t >= WEEK_START_MS && t <= WEEK_END_MS) return actualNow
-    return new Date('2026-06-22T08:00:00+02:00')
+    const base =
+      t >= WEEK_START_MS && t <= WEEK_END_MS
+        ? actualNow
+        : new Date('2026-06-22T08:00:00+02:00')
+    return {
+      start: base,
+      end: new Date(base.getTime() + 3 * 60 * 60_000),
+    }
   }
-  return new Date(
-    `${selectedDate}T${String(hour).padStart(2, '0')}:00:00+02:00`,
-  )
+  return {
+    start: hourToDate(selectedDate, hourStart),
+    end: hourToDate(selectedDate, hourEnd),
+  }
 }
 
 export default function NowRoute() {
   const [events, setEvents] = useState<EnrichedEvent[]>([])
   const [error, setError] = useState<string | null>(null)
   const [dateParam, setDateParam] = useUrlParam('date', '')
-  const [hourParam, setHourParam] = useUrlParam('h', '8')
-  const [windowParam, setWindowParam] = useUrlParam('w', '180')
+  const [hourParam, setHourParam] = useUrlParam('h', String(HOUR_MIN))
+  const [hourEndParam, setHourEndParam] = useUrlParam('h2', String(HOUR_MAX))
   const [foodParam, setFoodParam] = useUrlParam('food', '0')
   const [actualNow, setActualNow] = useState(new Date())
 
   const selectedDate: string | null = dateParam || null
-  const hour = Number(hourParam) || 8
-  const windowMin = (Number(windowParam) || 180) as WindowMin
+  const hourStart = Number(hourParam) || HOUR_MIN
+  const hourEnd = Number(hourEndParam) || HOUR_MAX
   const foodOnly = foodParam === '1'
   const setSelectedDate = (v: string | null) => setDateParam(v ?? '')
-  const setHour = (v: number) => setHourParam(String(v))
-  const setWindowMin = (v: WindowMin) => setWindowParam(String(v))
+  const setHourStart = (v: number) => {
+    const clamped = Math.max(HOUR_MIN, Math.min(v, hourEnd - 1))
+    setHourParam(String(clamped))
+  }
+  const setHourEnd = (v: number) => {
+    const clamped = Math.min(HOUR_MAX, Math.max(v, hourStart + 1))
+    setHourEndParam(String(clamped))
+  }
   const setFoodOnly = (v: boolean) => setFoodParam(v ? '1' : '0')
 
   useEffect(() => {
@@ -68,8 +82,12 @@ export default function NowRoute() {
     return () => clearInterval(id)
   }, [])
 
-  const cursor = chosenCursor(selectedDate, hour, actualNow)
-  const cursorEnd = new Date(cursor.getTime() + windowMin * 60_000)
+  const { start: cursor, end: cursorEnd } = chosenWindow(
+    selectedDate,
+    hourStart,
+    hourEnd,
+    actualNow,
+  )
   const isLive =
     selectedDate === null &&
     actualNow.getTime() >= WEEK_START_MS &&
@@ -82,7 +100,7 @@ export default function NowRoute() {
       .filter((e) => {
         const s = new Date(e.startISO).getTime()
         const eEnd = new Date(e.endISO).getTime()
-        if (eEnd < startMs || s > endMs) return false
+        if (s < startMs || eEnd > endMs) return false
         if (foodOnly && !hasFood(e)) return false
         return true
       })
@@ -115,9 +133,7 @@ export default function NowRoute() {
                 actualNow.getTime() <= WEEK_END_MS
                 ? 'just nu'
                 : 'första dagen'
-              : `${WEEK_DAYS.find((d) => d.date === selectedDate)?.label} ${String(hour).padStart(2, '0')}:00`}
-            {' · '}
-            {windowMin >= 60 ? `${windowMin / 60}h` : `${windowMin} min`} framåt
+              : `${WEEK_DAYS.find((d) => d.date === selectedDate)?.label} ${String(hourStart).padStart(2, '0')}:00–${String(hourEnd).padStart(2, '0')}:00`}
           </p>
         </div>
         <div className="flex gap-1 overflow-x-auto px-4 pb-2 text-xs">
@@ -150,41 +166,44 @@ export default function NowRoute() {
         {selectedDate !== null && (
           <div className="px-4 pb-3">
             <div className="mb-1 flex items-baseline justify-between text-[11px]">
-              <span className="text-[var(--color-fg-dim)]">Från klockan...</span>
+              <span className="text-[var(--color-fg-dim)]">Tidsspann</span>
               <span className="font-medium text-[var(--color-fg)]">
-                {String(hour).padStart(2, '0')}:00
+                {String(hourStart).padStart(2, '0')}:00–
+                {String(hourEnd).padStart(2, '0')}:00
               </span>
             </div>
-            <input
-              type="range"
-              min={7}
-              max={22}
-              value={hour}
-              onChange={(e) => setHour(Number(e.target.value))}
-              className="w-full accent-[var(--color-accent)]"
-            />
+            <div className="relative h-6">
+              <div className="pointer-events-none absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded bg-[var(--color-border)]" />
+              <div
+                className="pointer-events-none absolute top-1/2 h-1 -translate-y-1/2 rounded bg-[var(--color-accent)]"
+                style={{
+                  left: `${((hourStart - HOUR_MIN) / (HOUR_MAX - HOUR_MIN)) * 100}%`,
+                  right: `${100 - ((hourEnd - HOUR_MIN) / (HOUR_MAX - HOUR_MIN)) * 100}%`,
+                }}
+              />
+              <input
+                type="range"
+                min={HOUR_MIN}
+                max={HOUR_MAX}
+                value={hourStart}
+                onChange={(e) => setHourStart(Number(e.target.value))}
+                className="range-dual absolute inset-0 w-full"
+              />
+              <input
+                type="range"
+                min={HOUR_MIN}
+                max={HOUR_MAX}
+                value={hourEnd}
+                onChange={(e) => setHourEnd(Number(e.target.value))}
+                className="range-dual absolute inset-0 w-full"
+              />
+            </div>
             <div className="mt-1 flex justify-between text-[10px] text-[var(--color-fg-dim)]">
-              <span>07</span>
-              <span>22</span>
+              <span>{String(HOUR_MIN).padStart(2, '0')}</span>
+              <span>{String(HOUR_MAX).padStart(2, '0')}</span>
             </div>
           </div>
         )}
-        <div className="flex gap-1 overflow-x-auto px-4 pb-2 text-[11px]">
-          {WINDOWS.map((w) => (
-            <button
-              key={w.min}
-              type="button"
-              onClick={() => setWindowMin(w.min)}
-              className={`rounded-full border px-2.5 py-1 whitespace-nowrap ${
-                windowMin === w.min
-                  ? 'border-[var(--color-accent)] text-[var(--color-accent)]'
-                  : 'border-[var(--color-border)] text-[var(--color-fg-dim)]'
-              }`}
-            >
-              {w.label}
-            </button>
-          ))}
-        </div>
         <div className="px-4 pb-3 text-[11px]">
           <label className="inline-flex cursor-pointer items-center gap-2 text-[var(--color-fg-dim)]">
             <input
