@@ -100,10 +100,10 @@ export default function NowRoute() {
               ? actualNow.getTime() >= WEEK_START_MS &&
                 actualNow.getTime() <= WEEK_END_MS
                 ? 'just nu'
-                : 'måndag morgon'
+                : 'måndagen'
               : `${WEEK_DAYS.find((d) => d.date === selectedDate)?.label} ${String(hour).padStart(2, '0')}:00`}
             {' · '}
-            nästa {windowMin >= 60 ? `${windowMin / 60} h` : `${windowMin} min`}
+            {windowMin >= 60 ? `${windowMin / 60}h` : `${windowMin} min`} framåt
           </p>
         </div>
         <div className="flex gap-1 overflow-x-auto px-4 pb-2 text-xs">

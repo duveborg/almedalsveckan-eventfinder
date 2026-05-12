@@ -262,7 +262,7 @@ export default function ScheduleRoute() {
                 >
                   <div className="mb-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
                     efter {s.for.title.slice(0, 40)}
-                    {s.for.title.length > 40 ? '…' : ''} · {Math.round(s.gapMin)} min gap
+                    {s.for.title.length > 40 ? '…' : ''} · {Math.round(s.gapMin)} min i mellan
                     {s.meters != null && ` · ${Math.round(s.meters)} m bort`}
                   </div>
                   <Link
