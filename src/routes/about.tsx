@@ -29,7 +29,7 @@ export default function AboutRoute() {
   }
 
   return (
-    <section className="mx-auto h-full max-w-md overflow-y-auto">
+    <section className="mx-auto h-full max-w-md overflow-y-auto md:max-w-2xl">
       <header className="border-b border-[var(--color-border)]">
         <div className="px-4 pb-3 pt-5">
           <h1 className="text-2xl font-semibold">Om</h1>

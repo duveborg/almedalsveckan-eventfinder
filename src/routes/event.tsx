@@ -155,7 +155,7 @@ export default function EventDetailRoute() {
       : null
 
   return (
-    <article className="mx-auto h-full max-w-md overflow-y-auto p-4 pb-16">
+    <article className="mx-auto h-full max-w-md overflow-y-auto p-4 pb-16 md:max-w-2xl">
       <button
         type="button"
         onClick={goBack}
