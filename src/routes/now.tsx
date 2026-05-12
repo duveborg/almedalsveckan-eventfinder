@@ -32,6 +32,19 @@ function topEventTypes(events: EnrichedEvent[], n: number): string[] {
     .map(([t]) => t);
 }
 
+function topParties(events: EnrichedEvent[], n: number): string[] {
+  const counts = new Map<string, number>();
+  for (const e of events) {
+    for (const p of e.parties) {
+      counts.set(p, (counts.get(p) ?? 0) + 1);
+    }
+  }
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n)
+    .map(([t]) => t);
+}
+
 function topOrganizations(events: EnrichedEvent[], n: number): string[] {
   const counts = new Map<string, number>();
   for (const e of events) {
@@ -101,6 +114,7 @@ export default function NowRoute() {
   const [activeEventTypes, setActiveEventTypes] = useUrlSet("types");
   const [activeOrganizations, setActiveOrganizations] =
     useUrlSet("organizations");
+  const [activeParties, setActiveParties] = useUrlSet("parties");
   const [actualNow, setActualNow] = useState(now());
 
   const selectedDate: string | null = dateParam || null;
@@ -135,6 +149,12 @@ export default function NowRoute() {
     else next.add(o);
     setActiveOrganizations(next);
   };
+  const toggleParty = (p: string) => {
+    const next = new Set(activeParties);
+    if (next.has(p)) next.delete(p);
+    else next.add(p);
+    setActiveParties(next);
+  };
 
   useEffect(() => {
     loadEvents()
@@ -160,6 +180,7 @@ export default function NowRoute() {
     () => topOrganizations(events, 40),
     [events],
   );
+  const partyChips = useMemo(() => topParties(events, 20), [events]);
 
   const visible = useMemo(() => {
     const startMs = cursor.getTime();
@@ -182,6 +203,11 @@ export default function NowRoute() {
           !(e.persons ?? []).some((p) => activeOrganizations.has(p.organization))
         )
           return false;
+        if (
+          activeParties.size > 0 &&
+          !e.parties.some((p) => activeParties.has(p))
+        )
+          return false;
         return true;
       })
       .sort(
@@ -196,6 +222,7 @@ export default function NowRoute() {
     activeTopics,
     activeEventTypes,
     activeOrganizations,
+    activeParties,
   ]);
 
   if (error)
@@ -293,6 +320,41 @@ export default function NowRoute() {
           </div>
         )}
 
+        {partyChips.length > 0 && (
+          <div className="px-4 pb-3">
+            <div className="mb-1 flex items-baseline justify-between text-[11px]">
+              <span className="text-[var(--color-fg-dim)]">Parti</span>
+              {activeParties.size > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveParties(new Set())}
+                  className="text-[var(--color-fg-dim)] underline"
+                >
+                  Rensa
+                </button>
+              )}
+            </div>
+            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
+              {partyChips.map((p) => {
+                const active = activeParties.has(p);
+                return (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => toggleParty(p)}
+                    className={`rounded-full px-3 py-1.5 whitespace-nowrap ${
+                      active
+                        ? "bg-[var(--color-accent)] text-white"
+                        : "bg-[var(--color-surface)] text-[var(--color-fg-dim)]"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
         {topicChips.length > 0 && (
           <div className="px-4 pb-3">
             <div className="mb-1 flex items-baseline justify-between text-[11px]">

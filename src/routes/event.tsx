@@ -184,12 +184,13 @@ export default function EventDetailRoute() {
         {event.parties.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-1">
             {event.parties.map((p) => (
-              <span
+              <Link
                 key={p}
-                className="rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-accent)]"
+                to={`/now?parties=${encodeURIComponent(p)}`}
+                className="rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-accent)] hover:bg-[var(--color-accent)]/30"
               >
                 {p}
-              </span>
+              </Link>
             ))}
           </div>
         )}
@@ -374,9 +375,12 @@ export default function EventDetailRoute() {
                 <li key={`${p.name}_${i}`}>
                   <strong className="font-medium">{p.name}</strong>
                   {party && (
-                    <span className="ml-1 rounded-full bg-[var(--color-accent)]/20 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-accent)]">
+                    <Link
+                      to={`/now?parties=${encodeURIComponent(party)}`}
+                      className="ml-1 rounded-full bg-[var(--color-accent)]/20 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-accent)] hover:bg-[var(--color-accent)]/30"
+                    >
                       {party}
-                    </span>
+                    </Link>
                   )}
                   {p.title && (
                     <span className="text-[var(--color-fg-dim)]">
