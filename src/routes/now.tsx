@@ -263,7 +263,7 @@ export default function NowRoute() {
                 </button>
               )}
             </div>
-            <div className="-mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
+            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
               {topicChips.map((t) => {
               const active = activeTopics.has(t);
               return (
@@ -298,7 +298,7 @@ export default function NowRoute() {
                 </button>
               )}
             </div>
-            <div className="-mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
+            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
               {eventTypeChips.map((t) => {
                 const active = activeEventTypes.has(t);
                 return (

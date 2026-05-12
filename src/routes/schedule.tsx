@@ -240,7 +240,7 @@ export default function ScheduleRoute() {
 
         {visibleSuggestions.length > 0 && (
           <div className="mt-8">
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-fg-dim)]">
+            <h2 className="mb-3 text-md font-semibold uppercase tracking-wider text-[var(--color-fg-dim)]">
               Förslag — direkt efter
             </h2>
             <ul className="space-y-6">

@@ -25,6 +25,13 @@ body {
   margin: 0;
 }
 
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .range-dual {
   pointer-events: none;
   background: transparent;
