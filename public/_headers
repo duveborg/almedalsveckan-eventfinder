@@ -1,0 +1,14 @@
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/embeddings.bin
+  Cache-Control: public, max-age=86400
+
+/embeddings-meta.json
+  Cache-Control: public, max-age=86400
+
+/umap.json
+  Cache-Control: public, max-age=86400
+
+/events.json
+  Cache-Control: public, max-age=3600

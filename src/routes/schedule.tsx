@@ -256,6 +256,11 @@ export default function ScheduleRoute() {
             </ul>
           </div>
         )}
+
+        <p className="mt-8 px-1 text-[11px] leading-relaxed text-[var(--color-fg-dim)]">
+          Ditt schema sparas bara lokalt på den här enheten. Rensar du
+          webbläsardatan försvinner det.
+        </p>
       </div>
     </section>
   )
