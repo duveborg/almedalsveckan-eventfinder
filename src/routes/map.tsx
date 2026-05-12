@@ -8,6 +8,11 @@ import maplibregl, {
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { loadEvents } from '../data/load'
 import type { EnrichedEvent } from '../data/types'
+import {
+  FOOD_FILTERS,
+  matchesFoodFilter,
+  type FoodFilter,
+} from '../data/food'
 import { EventCard } from '../components/EventCard'
 
 const WEEK_DAYS = [
@@ -39,9 +44,26 @@ const OSM_STYLE: StyleSpecification = {
   layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
 }
 
-function toGeoJSON(events: EnrichedEvent[]): GeoJSON.FeatureCollection<
+function shortRelativeTime(event: EnrichedEvent, now: Date): string {
+  const start = new Date(event.startISO).getTime()
+  const end = new Date(event.endISO).getTime()
+  const t = now.getTime()
+  if (t > end) return ''
+  if (t >= start) return 'nu'
+  const min = Math.round((start - t) / 60000)
+  if (min < 60) return `${min}m`
+  const h = Math.round(min / 60)
+  if (h < 24) return `${h}h`
+  const d = Math.round(h / 24)
+  return `${d}d`
+}
+
+function toGeoJSON(
+  events: EnrichedEvent[],
+  now: Date,
+): GeoJSON.FeatureCollection<
   GeoJSON.Point,
-  { id: string; color: string }
+  { id: string; color: string; label: string }
 > {
   return {
     type: 'FeatureCollection',
@@ -59,6 +81,7 @@ function toGeoJSON(events: EnrichedEvent[]): GeoJSON.FeatureCollection<
         properties: {
           id: e.id,
           color: e.color?.main ?? '#ff7a3a',
+          label: shortRelativeTime(e, now),
         },
       })),
   }
@@ -71,15 +94,27 @@ export default function MapRoute() {
 
   const [events, setEvents] = useState<EnrichedEvent[]>([])
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
+  const [foodFilter, setFoodFilter] = useState<FoodFilter>('all')
   const [focusedIds, setFocusedIds] = useState<string[]>([])
+  const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
     loadEvents().then(setEvents)
   }, [])
 
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30_000)
+    return () => clearInterval(id)
+  }, [])
+
   const filtered = useMemo(
-    () => (selectedDay ? events.filter((e) => e.date === selectedDay) : events),
-    [events, selectedDay],
+    () =>
+      events.filter((e) => {
+        if (selectedDay && e.date !== selectedDay) return false
+        if (!matchesFoodFilter(e, foodFilter)) return false
+        return true
+      }),
+    [events, selectedDay, foodFilter],
   )
 
   useEffect(() => {
@@ -159,6 +194,32 @@ export default function MapRoute() {
         },
       })
 
+      map.addLayer({
+        id: 'event-labels',
+        type: 'symbol',
+        source: 'events',
+        filter: [
+          'all',
+          ['!', ['has', 'point_count']],
+          ['!=', ['get', 'label'], ''],
+        ],
+        layout: {
+          'text-field': ['get', 'label'],
+          'text-size': 11,
+          'text-font': ['Noto Sans Bold'],
+          'text-anchor': 'bottom',
+          'text-offset': [0, -0.9],
+          'text-allow-overlap': false,
+          'text-ignore-placement': false,
+          'text-optional': true,
+        },
+        paint: {
+          'text-color': '#ffffff',
+          'text-halo-color': '#0c0a14',
+          'text-halo-width': 1.5,
+        },
+      })
+
       map.on('click', 'clusters', (e) => {
         const features = map.queryRenderedFeatures(e.point, {
           layers: ['clusters'],
@@ -213,11 +274,11 @@ export default function MapRoute() {
     const apply = () => {
       const source = map.getSource('events') as GeoJSONSource | undefined
       if (!source) return
-      source.setData(toGeoJSON(filtered))
+      source.setData(toGeoJSON(filtered, now))
     }
     if (map.isStyleLoaded()) apply()
     else map.once('load', apply)
-  }, [filtered])
+  }, [filtered, now])
 
   const focusedEvents = useMemo(
     () => events.filter((e) => focusedIds.includes(e.id)),
@@ -227,7 +288,7 @@ export default function MapRoute() {
   return (
     <section className="relative h-full">
       <div ref={containerRef} className="h-full w-full" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center p-3">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col items-center gap-2 p-3">
         <div className="pointer-events-auto flex gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)]/95 p-1 text-xs backdrop-blur">
           <button
             type="button"
@@ -255,6 +316,22 @@ export default function MapRoute() {
             </button>
           ))}
         </div>
+        <div className="pointer-events-auto flex gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)]/95 p-1 text-[11px] backdrop-blur">
+          {FOOD_FILTERS.map((f) => (
+            <button
+              key={f.value}
+              type="button"
+              onClick={() => setFoodFilter(f.value)}
+              className={`rounded-full px-2.5 py-0.5 ${
+                foodFilter === f.value
+                  ? 'bg-[var(--color-accent)] text-black'
+                  : 'text-[var(--color-fg-dim)]'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
       {focusedEvents.length > 0 && (
         <div className="absolute inset-x-0 bottom-0 z-10 max-h-[55svh] overflow-y-auto rounded-t-2xl border-t border-[var(--color-border)] bg-[var(--color-bg)]/97 p-4 backdrop-blur">
@@ -273,7 +350,7 @@ export default function MapRoute() {
           <ul className="space-y-2 pb-4">
             {focusedEvents.map((e) => (
               <li key={e.id}>
-                <EventCard event={e} />
+                <EventCard event={e} now={now} />
               </li>
             ))}
           </ul>

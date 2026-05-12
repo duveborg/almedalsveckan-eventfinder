@@ -85,7 +85,7 @@ function suggestNext(
   }
   return out
     .sort((a, b) => a.gapMin - b.gapMin)
-    .slice(0, 6)
+    .slice(0, 10)
 }
 
 function buildIcs(events: EnrichedEvent[]): string {
@@ -170,7 +170,7 @@ export default function ScheduleRoute() {
 
   return (
     <section className="mx-auto h-full max-w-md overflow-y-auto">
-      <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
         <div className="flex items-center justify-between px-4 pb-3 pt-5">
           <h1 className="text-2xl font-semibold">Schema</h1>
           {savedEvents.length > 0 && (
@@ -261,8 +261,7 @@ export default function ScheduleRoute() {
                   className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
                 >
                   <div className="mb-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
-                    efter {s.for.title.slice(0, 40)}
-                    {s.for.title.length > 40 ? '…' : ''} · {Math.round(s.gapMin)} min i mellan
+                    {Math.round(s.gapMin)} min efter
                     {s.meters != null && ` · ${Math.round(s.meters)} m bort`}
                   </div>
                   <Link

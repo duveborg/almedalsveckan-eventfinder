@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { loadEvents } from '../data/load'
 import type { EnrichedEvent } from '../data/types'
+import {
+  FOOD_FILTERS,
+  matchesFoodFilter,
+  type FoodFilter,
+} from '../data/food'
 import { EventCard } from '../components/EventCard'
 
 const WEEK_DAYS = [
@@ -43,6 +48,7 @@ export default function NowRoute() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [hour, setHour] = useState(8)
   const [windowMin, setWindowMin] = useState<WindowMin>(180)
+  const [foodFilter, setFoodFilter] = useState<FoodFilter>('all')
   const [actualNow, setActualNow] = useState(new Date())
 
   useEffect(() => {
@@ -70,13 +76,15 @@ export default function NowRoute() {
       .filter((e) => {
         const s = new Date(e.startISO).getTime()
         const eEnd = new Date(e.endISO).getTime()
-        return eEnd >= startMs && s <= endMs
+        if (eEnd < startMs || s > endMs) return false
+        if (!matchesFoodFilter(e, foodFilter)) return false
+        return true
       })
       .sort(
         (a, b) =>
           new Date(a.startISO).getTime() - new Date(b.startISO).getTime(),
       )
-  }, [events, cursor, cursorEnd])
+  }, [events, cursor, cursorEnd, foodFilter])
 
   if (error)
     return (
@@ -152,7 +160,7 @@ export default function NowRoute() {
             </div>
           </div>
         )}
-        <div className="flex gap-1 overflow-x-auto px-4 pb-3 text-[11px]">
+        <div className="flex gap-1 overflow-x-auto px-4 pb-2 text-[11px]">
           {WINDOWS.map((w) => (
             <button
               key={w.min}
@@ -165,6 +173,22 @@ export default function NowRoute() {
               }`}
             >
               {w.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1 overflow-x-auto px-4 pb-3 text-[11px]">
+          {FOOD_FILTERS.map((f) => (
+            <button
+              key={f.value}
+              type="button"
+              onClick={() => setFoodFilter(f.value)}
+              className={`rounded-full border px-2.5 py-1 whitespace-nowrap ${
+                foodFilter === f.value
+                  ? 'border-[var(--color-accent)] text-[var(--color-accent)]'
+                  : 'border-[var(--color-border)] text-[var(--color-fg-dim)]'
+              }`}
+            >
+              {f.label}
             </button>
           ))}
         </div>
