@@ -1,70 +1,78 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { loadEvents } from '../data/load'
-import { loadEmbeddings, cosineInt8 } from '../data/galaxy'
-import type { EnrichedEvent } from '../data/types'
-import { EventCard } from '../components/EventCard'
-import { useSchedule } from '../store/schedule'
-import { useLocation } from '../store/location'
-import { haversineMeters, formatDistance } from '../lib/distance'
-import { hasFood } from '../data/food'
-import { now } from '../lib/now'
-import { useDocumentTitle } from '../lib/useDocumentTitle'
-import { downloadIcs } from '../lib/ics'
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { loadEvents } from "../data/load";
+import { loadEmbeddings, cosineInt8 } from "../data/galaxy";
+import type { EnrichedEvent } from "../data/types";
+import { EventCard } from "../components/EventCard";
+import { useSchedule } from "../store/schedule";
+import { useLocation } from "../store/location";
+import { haversineMeters, formatDistance } from "../lib/distance";
+import { hasFood } from "../data/food";
+import { now } from "../lib/now";
+import { useDocumentTitle } from "../lib/useDocumentTitle";
+import { downloadIcs } from "../lib/ics";
 
 interface SimilarHit {
-  id: string
-  score: number
+  id: string;
+  score: number;
 }
 
 function formatDuration(min: number | null): string | null {
-  if (min == null || min <= 0) return null
-  if (min < 60) return `${min} min`
-  const h = Math.floor(min / 60)
-  const m = min % 60
-  return m === 0 ? `${h} h` : `${h} h ${m} min`
+  if (min == null || min <= 0) return null;
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m === 0 ? `${h} h` : `${h} h ${m} min`;
 }
 
 function prettyUrl(url: string): string {
-  return url.replace(/^https?:\/\//, '').replace(/\/$/, '')
+  return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
 }
 
 function icsFilename(title: string): string {
   const slug = title
     .toLowerCase()
-    .replace(/[åä]/g, 'a')
-    .replace(/ö/g, 'o')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60)
-  return `${slug || 'event'}.ics`
+    .replace(/[åä]/g, "a")
+    .replace(/ö/g, "o")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  return `${slug || "event"}.ics`;
 }
 
-const SOCIAL_LABELS: Array<[
-  'facebookUrl' | 'twitterUrl' | 'instagramUrl' | 'linkedinUrl' | 'youtubeUrl',
-  string,
-]> = [
-  ['facebookUrl', 'Facebook'],
-  ['twitterUrl', 'Twitter / X'],
-  ['instagramUrl', 'Instagram'],
-  ['linkedinUrl', 'LinkedIn'],
-  ['youtubeUrl', 'YouTube'],
-]
+const SOCIAL_LABELS: Array<
+  [
+    (
+      | "facebookUrl"
+      | "twitterUrl"
+      | "instagramUrl"
+      | "linkedinUrl"
+      | "youtubeUrl"
+    ),
+    string,
+  ]
+> = [
+  ["facebookUrl", "Facebook"],
+  ["twitterUrl", "Twitter / X"],
+  ["instagramUrl", "Instagram"],
+  ["linkedinUrl", "LinkedIn"],
+  ["youtubeUrl", "YouTube"],
+];
 
 function useSimilar(eventId: string | undefined): SimilarHit[] | null {
-  const [hits, setHits] = useState<SimilarHit[] | null>(null)
+  const [hits, setHits] = useState<SimilarHit[] | null>(null);
   useEffect(() => {
-    if (!eventId) return
-    let cancelled = false
+    if (!eventId) return;
+    let cancelled = false;
     loadEmbeddings().then((data) => {
-      if (!data || cancelled) return
-      const { meta, bytes } = data
-      const target = meta.ids.indexOf(eventId)
-      if (target < 0) return
-      const tscale = meta.scales[target]
-      const scored: SimilarHit[] = []
+      if (!data || cancelled) return;
+      const { meta, bytes } = data;
+      const target = meta.ids.indexOf(eventId);
+      if (target < 0) return;
+      const tscale = meta.scales[target];
+      const scored: SimilarHit[] = [];
       for (let i = 0; i < meta.count; i++) {
-        if (meta.ids[i] === eventId) continue
+        if (meta.ids[i] === eventId) continue;
         const s = cosineInt8(
           bytes,
           bytes,
@@ -73,98 +81,104 @@ function useSimilar(eventId: string | undefined): SimilarHit[] | null {
           meta.dims,
           target * meta.dims,
           i * meta.dims,
-        )
-        scored.push({ id: meta.ids[i], score: s })
+        );
+        scored.push({ id: meta.ids[i], score: s });
       }
-      scored.sort((a, b) => b.score - a.score)
-      if (!cancelled) setHits(scored.slice(0, 50))
-    })
+      scored.sort((a, b) => b.score - a.score);
+      if (!cancelled) setHits(scored.slice(0, 50));
+    });
     return () => {
-      cancelled = true
-    }
-  }, [eventId])
-  return hits
+      cancelled = true;
+    };
+  }, [eventId]);
+  return hits;
 }
 
 export default function EventDetailRoute() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const eventId = id ? decodeURIComponent(id) : undefined
-  const [events, setEvents] = useState<EnrichedEvent[]>([])
-  const saved = useSchedule((s) => (eventId ? s.savedIds.includes(eventId) : false))
-  const toggle = useSchedule((s) => s.toggle)
-  const userCoords = useLocation((s) => s.coords)
-  const locationStatus = useLocation((s) => s.status)
-  const requestLocation = useLocation((s) => s.request)
-  const similar = useSimilar(eventId)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const eventId = id ? decodeURIComponent(id) : undefined;
+  const [events, setEvents] = useState<EnrichedEvent[]>([]);
+  const saved = useSchedule((s) =>
+    eventId ? s.savedIds.includes(eventId) : false,
+  );
+  const toggle = useSchedule((s) => s.toggle);
+  const userCoords = useLocation((s) => s.coords);
+  const locationStatus = useLocation((s) => s.status);
+  const requestLocation = useLocation((s) => s.request);
+  const similar = useSimilar(eventId);
 
   const event = useMemo(
     () => events.find((e) => e.id === eventId) ?? null,
     [events, eventId],
-  )
-  useDocumentTitle(event?.title ?? null)
+  );
+  useDocumentTitle(event?.title ?? null);
 
   const goBack = () => {
     if (window.history.state && window.history.state.idx > 0) {
-      navigate(-1)
+      navigate(-1);
     } else {
-      navigate('/find')
+      navigate("/find");
     }
-  }
+  };
 
   useEffect(() => {
-    loadEvents().then(setEvents)
-  }, [])
+    loadEvents().then(setEvents);
+  }, []);
 
   const similarEvents = useMemo(() => {
-    if (!similar) return null
-    const byId = new Map(events.map((e) => [e.id, e]))
-    const cutoff = now().getTime()
+    if (!similar) return null;
+    const byId = new Map(events.map((e) => [e.id, e]));
+    const cutoff = now().getTime();
     return similar
       .map((h) => byId.get(h.id))
-      .filter((e): e is EnrichedEvent => !!e && new Date(e.endISO).getTime() > cutoff)
-      .slice(0, 6)
-  }, [similar, events])
+      .filter(
+        (e): e is EnrichedEvent => !!e && new Date(e.endISO).getTime() > cutoff,
+      )
+      .slice(0, 6);
+  }, [similar, events]);
 
   if (!event)
     return (
       <div className="p-6 text-sm text-[var(--color-fg-dim)]">Laddar …</div>
-    )
+    );
 
-  const speakers = event.persons ?? []
-  const duration = formatDuration(event.durationMin)
+  const speakers = event.persons ?? [];
+  const duration = formatDuration(event.durationMin);
   const metaLine = [event.category, event.eventType, event.languages]
     .filter((v): v is string => !!v && v.length > 0)
-    .join(' · ')
-  const extraUrls = [event.urls?.url2, event.urls?.url3, event.urls?.url4].filter(
-    (u): u is string => !!u,
-  )
+    .join(" · ");
+  const extraUrls = [
+    event.urls?.url2,
+    event.urls?.url3,
+    event.urls?.url4,
+  ].filter((u): u is string => !!u);
   const socials = SOCIAL_LABELS.flatMap(([key, label]) => {
-    const url = event.urls?.[key]
-    return url ? [{ key, label, url }] : []
-  })
-  const showEmail = event.showEmail === 'true'
-  const showPhone = event.showPhone === 'true'
+    const url = event.urls?.[key];
+    return url ? [{ key, label, url }] : [];
+  });
+  const showEmail = event.showEmail === "true";
+  const showPhone = event.showPhone === "true";
   const contacts = [event.contactPerson1, event.contactPerson2].filter(
     (c): c is NonNullable<typeof c> => !!c,
-  )
+  );
   const hasDigital =
-    event.digitalStream === 'true' ||
+    event.digitalStream === "true" ||
     !!event.digitalStreamUrl ||
     !!event.digitalArchiveUrl ||
-    !!event.interactiveLink
-  const foodServed = hasFood(event)
+    !!event.interactiveLink;
+  const foodServed = hasFood(event);
 
-  const eventLat = event.location?.latitude
-  const eventLng = event.location?.longitude
-  const hasCoords = eventLat != null && eventLng != null
+  const eventLat = event.location?.latitude;
+  const eventLng = event.location?.longitude;
+  const hasCoords = eventLat != null && eventLng != null;
   const distanceMeters =
     hasCoords && userCoords
       ? haversineMeters(
           { lat: userCoords.lat, lng: userCoords.lng },
           { lat: eventLat, lng: eventLng },
         )
-      : null
+      : null;
 
   return (
     <article className="mx-auto h-full max-w-md overflow-y-auto p-4 pb-16 md:max-w-2xl">
@@ -183,14 +197,14 @@ export default function EventDetailRoute() {
           <button
             type="button"
             onClick={() => toggle(event.id)}
-            aria-label={saved ? 'Ta bort från schema' : 'Spara till schema'}
+            aria-label={saved ? "Ta bort från schema" : "Spara till schema"}
             className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xl ${
               saved
-                ? 'bg-[var(--color-accent)] text-white'
-                : 'bg-[var(--color-bg)] text-[var(--color-fg-dim)]'
+                ? "bg-[var(--color-accent)] text-white"
+                : "bg-[var(--color-bg)] text-[var(--color-fg-dim)]"
             }`}
           >
-            {saved ? '★' : '☆'}
+            {saved ? "★" : "☆"}
           </button>
         </div>
         {event.parties.length > 0 && (
@@ -207,23 +221,21 @@ export default function EventDetailRoute() {
           </div>
         )}
         <div className="text-xs text-[var(--color-fg-dim)]">
-          {event.weekDayName} {event.shortDate} · {event.startTime}–{event.endTime}
+          {event.weekDayName} {event.shortDate} · {event.startTime}–
+          {event.endTime}
           {duration && ` · ${duration}`}
         </div>
-        <button
-          type="button"
-          onClick={() => downloadIcs([event], icsFilename(event.title))}
-          className="mt-1 text-xs text-[var(--color-accent)] underline-offset-2 hover:underline"
-        >
-          📅 Lägg till i kalender
-        </button>
+
         {metaLine && (
-          <div className="mt-1 text-xs text-[var(--color-fg-dim)]">{metaLine}</div>
+          <div className="mt-1 text-xs text-[var(--color-fg-dim)]">
+            {metaLine}
+          </div>
         )}
         {event.location?.name && (
           <a
             href={`https://www.google.com/maps/search/?api=1&query=${
-              event.location.latitude != null && event.location.longitude != null
+              event.location.latitude != null &&
+              event.location.longitude != null
                 ? `${event.location.latitude},${event.location.longitude}`
                 : encodeURIComponent(`${event.location.name}, Visby`)
             }`}
@@ -243,11 +255,13 @@ export default function EventDetailRoute() {
           <div className="mt-1 text-xs text-[var(--color-fg-dim)]">
             {distanceMeters != null ? (
               <span>📏 {formatDistance(distanceMeters)}</span>
-            ) : locationStatus === 'requesting' ? (
+            ) : locationStatus === "requesting" ? (
               <span>📏 Hämtar din plats …</span>
-            ) : locationStatus === 'denied' ? (
-              <span>📏 Plats nekad – tillåt i webbläsaren för att se avstånd</span>
-            ) : locationStatus === 'unsupported' ? (
+            ) : locationStatus === "denied" ? (
+              <span>
+                📏 Plats nekad – tillåt i webbläsaren för att se avstånd
+              </span>
+            ) : locationStatus === "unsupported" ? (
               <span>📏 Plats stöds inte i denna webbläsare</span>
             ) : (
               <button
@@ -261,7 +275,7 @@ export default function EventDetailRoute() {
           </div>
         )}
         {event.topics.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1">
+          <div className="mt-3 flex flex-wrap gap-1">
             {event.topics.map((t) => (
               <Link
                 key={t}
@@ -274,12 +288,20 @@ export default function EventDetailRoute() {
           </div>
         )}
         {foodServed && (
-          <div className="mt-2 text-xs">
+          <div className="mt-3 text-xs">
             <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-[var(--color-accent)]">
               🍽 Mat serveras
             </span>
           </div>
         )}
+
+        <button
+          type="button"
+          onClick={() => downloadIcs([event], icsFilename(event.title))}
+          className="mt-3 text-xs text-[var(--color-accent)] underline-offset-2 hover:underline"
+        >
+          📅 Lägg till i kalender
+        </button>
       </header>
 
       {hasDigital && (
@@ -299,13 +321,13 @@ export default function EventDetailRoute() {
                   ▶ Se direktsändning
                   {event.streamService && (
                     <span className="text-[var(--color-fg-dim)]">
-                      {' '}
+                      {" "}
                       ({event.streamService})
                     </span>
                   )}
                 </a>
               </li>
-            ) : event.digitalStream === 'true' ? (
+            ) : event.digitalStream === "true" ? (
               <li className="text-[var(--color-fg-dim)]">
                 Sänds digitalt
                 {event.streamService && ` via ${event.streamService}`}
@@ -331,7 +353,8 @@ export default function EventDetailRoute() {
                   rel="noopener noreferrer"
                   className="text-[var(--color-accent)] hover:underline"
                 >
-                  {event.interactiveLinkDescription || prettyUrl(event.interactiveLink)}
+                  {event.interactiveLinkDescription ||
+                    prettyUrl(event.interactiveLink)}
                 </a>
               </li>
             )}
@@ -389,7 +412,9 @@ export default function EventDetailRoute() {
           <ul className="space-y-1 text-sm">
             {speakers.map((p, i) => {
               const party =
-                p.party && p.party.toLowerCase() !== 'none' ? p.party.trim() : null
+                p.party && p.party.toLowerCase() !== "none"
+                  ? p.party.trim()
+                  : null;
               return (
                 <li key={`${p.name}_${i}`}>
                   <strong className="font-medium">{p.name}</strong>
@@ -403,13 +428,13 @@ export default function EventDetailRoute() {
                   )}
                   {p.title && (
                     <span className="text-[var(--color-fg-dim)]">
-                      {' '}
+                      {" "}
                       · {p.title}
                     </span>
                   )}
                   {p.organization && (
                     <span className="text-[var(--color-fg-dim)]">
-                      {' · '}
+                      {" · "}
                       <Link
                         to={`/find?organizations=${encodeURIComponent(p.organization)}`}
                         className="text-[var(--color-accent)] underline-offset-2 hover:underline"
@@ -419,7 +444,7 @@ export default function EventDetailRoute() {
                     </span>
                   )}
                 </li>
-              )
+              );
             })}
           </ul>
         </section>
@@ -492,10 +517,16 @@ export default function EventDetailRoute() {
                 <div>
                   <strong className="font-medium">{c.name}</strong>
                   {c.title && (
-                    <span className="text-[var(--color-fg-dim)]"> · {c.title}</span>
+                    <span className="text-[var(--color-fg-dim)]">
+                      {" "}
+                      · {c.title}
+                    </span>
                   )}
                   {c.org && (
-                    <span className="text-[var(--color-fg-dim)]"> · {c.org}</span>
+                    <span className="text-[var(--color-fg-dim)]">
+                      {" "}
+                      · {c.org}
+                    </span>
                   )}
                 </div>
                 {showPhone && c.phone && (
@@ -539,5 +570,5 @@ export default function EventDetailRoute() {
         </section>
       )}
     </article>
-  )
+  );
 }
