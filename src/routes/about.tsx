@@ -41,8 +41,9 @@ export default function AboutRoute() {
             Bläddra i karta, schema och sök — eller se vad som händer just nu.
           </p>
           <p className="text-[var(--color-fg-dim)]">
-            Data hämtas från det officiella Almedalsprogrammet och berikas med
-            ämnen och annan metadata för att göra det enklare att hitta rätt.
+            Data hämtas från det officiella Almedalsprogrammet. Varje event
+            analyseras också utifrån sitt innehåll så att liknande event kan
+            hittas och du kan få personliga förslag i För dig.
           </p>
         </div>
 
