@@ -2,6 +2,7 @@ export interface RawLocation {
   name: string | null
   longitude: number | null
   latitude: number | null
+  description?: string
 }
 
 export interface Person {
@@ -15,6 +16,8 @@ export interface ContactPerson {
   name: string
   title: string
   org: string
+  phone?: string
+  email?: string
 }
 
 export interface EventColor {

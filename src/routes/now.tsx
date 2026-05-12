@@ -1,12 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { loadEvents } from '../data/load'
 import type { EnrichedEvent } from '../data/types'
-import {
-  FOOD_FILTERS,
-  matchesFoodFilter,
-  type FoodFilter,
-} from '../data/food'
+import { hasFood } from '../data/food'
 import { EventCard } from '../components/EventCard'
+import { useUrlParam } from '../lib/urlState'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån' },
@@ -45,11 +42,20 @@ function chosenCursor(
 export default function NowRoute() {
   const [events, setEvents] = useState<EnrichedEvent[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [selectedDate, setSelectedDate] = useState<string | null>(null)
-  const [hour, setHour] = useState(8)
-  const [windowMin, setWindowMin] = useState<WindowMin>(180)
-  const [foodFilter, setFoodFilter] = useState<FoodFilter>('all')
+  const [dateParam, setDateParam] = useUrlParam('date', '')
+  const [hourParam, setHourParam] = useUrlParam('h', '8')
+  const [windowParam, setWindowParam] = useUrlParam('w', '180')
+  const [foodParam, setFoodParam] = useUrlParam('food', '0')
   const [actualNow, setActualNow] = useState(new Date())
+
+  const selectedDate: string | null = dateParam || null
+  const hour = Number(hourParam) || 8
+  const windowMin = (Number(windowParam) || 180) as WindowMin
+  const foodOnly = foodParam === '1'
+  const setSelectedDate = (v: string | null) => setDateParam(v ?? '')
+  const setHour = (v: number) => setHourParam(String(v))
+  const setWindowMin = (v: WindowMin) => setWindowParam(String(v))
+  const setFoodOnly = (v: boolean) => setFoodParam(v ? '1' : '0')
 
   useEffect(() => {
     loadEvents()
@@ -77,14 +83,14 @@ export default function NowRoute() {
         const s = new Date(e.startISO).getTime()
         const eEnd = new Date(e.endISO).getTime()
         if (eEnd < startMs || s > endMs) return false
-        if (!matchesFoodFilter(e, foodFilter)) return false
+        if (foodOnly && !hasFood(e)) return false
         return true
       })
       .sort(
         (a, b) =>
           new Date(a.startISO).getTime() - new Date(b.startISO).getTime(),
       )
-  }, [events, cursor, cursorEnd, foodFilter])
+  }, [events, cursor, cursorEnd, foodOnly])
 
   if (error)
     return (
@@ -103,12 +109,12 @@ export default function NowRoute() {
         <div className="px-4 pb-3 pt-5">
           <h1 className="text-2xl font-semibold">Nu</h1>
           <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
-            {visible.length} event under{' '}
+            {visible.length} event {' · '}
             {selectedDate === null
               ? actualNow.getTime() >= WEEK_START_MS &&
                 actualNow.getTime() <= WEEK_END_MS
                 ? 'just nu'
-                : 'måndagen'
+                : 'första dagen'
               : `${WEEK_DAYS.find((d) => d.date === selectedDate)?.label} ${String(hour).padStart(2, '0')}:00`}
             {' · '}
             {windowMin >= 60 ? `${windowMin / 60}h` : `${windowMin} min`} framåt
@@ -176,21 +182,16 @@ export default function NowRoute() {
             </button>
           ))}
         </div>
-        <div className="flex gap-1 overflow-x-auto px-4 pb-3 text-[11px]">
-          {FOOD_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              type="button"
-              onClick={() => setFoodFilter(f.value)}
-              className={`rounded-full border px-2.5 py-1 whitespace-nowrap ${
-                foodFilter === f.value
-                  ? 'border-[var(--color-accent)] text-[var(--color-accent)]'
-                  : 'border-[var(--color-border)] text-[var(--color-fg-dim)]'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
+        <div className="px-4 pb-3 text-[11px]">
+          <label className="inline-flex cursor-pointer items-center gap-2 text-[var(--color-fg-dim)]">
+            <input
+              type="checkbox"
+              checked={foodOnly}
+              onChange={(e) => setFoodOnly(e.target.checked)}
+              className="h-3.5 w-3.5 accent-[var(--color-accent)]"
+            />
+            Endast med mat
+          </label>
         </div>
       </header>
       <ul className="space-y-2 p-4">

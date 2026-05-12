@@ -4,6 +4,7 @@ import { loadEvents } from '../data/load'
 import type { EnrichedEvent } from '../data/types'
 import { useSchedule } from '../store/schedule'
 import { EventCard } from '../components/EventCard'
+import { useUrlParam } from '../lib/urlState'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån 22/6' },
@@ -127,7 +128,7 @@ function downloadIcs(events: EnrichedEvent[]) {
 
 export default function ScheduleRoute() {
   const [events, setEvents] = useState<EnrichedEvent[]>([])
-  const [day, setDay] = useState<string>(WEEK_DAYS[0].date)
+  const [day, setDay] = useUrlParam('day', WEEK_DAYS[0].date)
   const savedIds = useSchedule((s) => s.savedIds)
 
   useEffect(() => {

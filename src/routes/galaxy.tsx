@@ -4,6 +4,7 @@ import { loadEvents } from '../data/load'
 import type { EnrichedEvent } from '../data/types'
 import { loadGalaxy, type GalaxyPoint } from '../data/galaxy'
 import { keywordSearch } from '../data/search'
+import { useUrlParam, useUrlSet } from '../lib/urlState'
 
 interface Viewport {
   scale: number
@@ -39,10 +40,10 @@ export default function GalaxyRoute() {
   const [events, setEvents] = useState<EnrichedEvent[]>([])
   const [galaxy, setGalaxy] = useState<GalaxyPoint[] | null>(null)
   const [missing, setMissing] = useState(false)
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useUrlParam('q', '')
   const [viewport, setViewport] = useState<Viewport>(DEFAULT_VIEWPORT)
   const [hovered, setHovered] = useState<GalaxyPoint | null>(null)
-  const [activeClusters, setActiveClusters] = useState<Set<string>>(new Set())
+  const [activeClusters, setActiveClusters] = useUrlSet('clusters')
 
   useEffect(() => {
     loadEvents().then(setEvents)
@@ -210,13 +211,12 @@ export default function GalaxyRoute() {
     }
   }, [galaxy, navigate, viewport])
 
-  const toggleCluster = (label: string) =>
-    setActiveClusters((prev) => {
-      const next = new Set(prev)
-      if (next.has(label)) next.delete(label)
-      else next.add(label)
-      return next
-    })
+  const toggleCluster = (label: string) => {
+    const next = new Set(activeClusters)
+    if (next.has(label)) next.delete(label)
+    else next.add(label)
+    setActiveClusters(next)
+  }
 
   if (missing)
     return (

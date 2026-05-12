@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { loadEvents } from '../data/load'
 import { loadEmbeddings, cosineInt8 } from '../data/galaxy'
 import type { EnrichedEvent } from '../data/types'
@@ -10,6 +10,29 @@ interface SimilarHit {
   id: string
   score: number
 }
+
+function formatDuration(min: number | null): string | null {
+  if (min == null || min <= 0) return null
+  if (min < 60) return `${min} min`
+  const h = Math.floor(min / 60)
+  const m = min % 60
+  return m === 0 ? `${h} h` : `${h} h ${m} min`
+}
+
+function prettyUrl(url: string): string {
+  return url.replace(/^https?:\/\//, '').replace(/\/$/, '')
+}
+
+const SOCIAL_LABELS: Array<[
+  'facebookUrl' | 'twitterUrl' | 'instagramUrl' | 'linkedinUrl' | 'youtubeUrl',
+  string,
+]> = [
+  ['facebookUrl', 'Facebook'],
+  ['twitterUrl', 'Twitter / X'],
+  ['instagramUrl', 'Instagram'],
+  ['linkedinUrl', 'LinkedIn'],
+  ['youtubeUrl', 'YouTube'],
+]
 
 function useSimilar(eventId: string | undefined): SimilarHit[] | null {
   const [hits, setHits] = useState<SimilarHit[] | null>(null)
@@ -48,11 +71,20 @@ function useSimilar(eventId: string | undefined): SimilarHit[] | null {
 
 export default function EventDetailRoute() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const eventId = id ? decodeURIComponent(id) : undefined
   const [events, setEvents] = useState<EnrichedEvent[]>([])
   const saved = useSchedule((s) => (eventId ? s.savedIds.includes(eventId) : false))
   const toggle = useSchedule((s) => s.toggle)
   const similar = useSimilar(eventId)
+
+  const goBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1)
+    } else {
+      navigate('/now')
+    }
+  }
 
   useEffect(() => {
     loadEvents().then(setEvents)
@@ -77,15 +109,37 @@ export default function EventDetailRoute() {
     )
 
   const speakers = event.persons ?? []
+  const duration = formatDuration(event.durationMin)
+  const metaLine = [event.category, event.eventType, event.languages]
+    .filter((v): v is string => !!v && v.length > 0)
+    .join(' · ')
+  const extraUrls = [event.urls?.url2, event.urls?.url3, event.urls?.url4].filter(
+    (u): u is string => !!u,
+  )
+  const socials = SOCIAL_LABELS.flatMap(([key, label]) => {
+    const url = event.urls?.[key]
+    return url ? [{ key, label, url }] : []
+  })
+  const showEmail = event.showEmail === 'true'
+  const showPhone = event.showPhone === 'true'
+  const contacts = [event.contactPerson1, event.contactPerson2].filter(
+    (c): c is NonNullable<typeof c> => !!c,
+  )
+  const hasDigital =
+    event.digitalStream === 'true' ||
+    !!event.digitalStreamUrl ||
+    !!event.digitalArchiveUrl ||
+    !!event.interactiveLink
 
   return (
     <article className="mx-auto h-full max-w-md overflow-y-auto p-4">
-      <Link
-        to="/now"
+      <button
+        type="button"
+        onClick={goBack}
         className="mb-3 inline-block text-xs text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]"
       >
         ← Tillbaka
-      </Link>
+      </button>
       <header className="mb-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
         <div className="mb-2 flex items-start justify-between gap-3">
           <h1 className="text-xl font-semibold leading-tight text-[var(--color-fg)]">
@@ -104,9 +158,25 @@ export default function EventDetailRoute() {
             {saved ? '★' : '☆'}
           </button>
         </div>
+        {event.parties.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-1">
+            {event.parties.map((p) => (
+              <span
+                key={p}
+                className="rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-accent)]"
+              >
+                {p}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="text-xs text-[var(--color-fg-dim)]">
           {event.weekDayName} {event.shortDate} · {event.startTime}–{event.endTime}
+          {duration && ` · ${duration}`}
         </div>
+        {metaLine && (
+          <div className="mt-1 text-xs text-[var(--color-fg-dim)]">{metaLine}</div>
+        )}
         {event.location?.name && (
           <a
             href={`https://www.google.com/maps/search/?api=1&query=${
@@ -121,6 +191,11 @@ export default function EventDetailRoute() {
             📍 {event.location.name}
           </a>
         )}
+        {event.location?.description && (
+          <div className="mt-0.5 text-xs text-[var(--color-fg-dim)]">
+            {event.location.description}
+          </div>
+        )}
         {event.topics.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
             {event.topics.map((t) => (
@@ -134,6 +209,72 @@ export default function EventDetailRoute() {
           </div>
         )}
       </header>
+
+      {hasDigital && (
+        <section className="mb-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
+          <h2 className="mb-2 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
+            Digitalt
+          </h2>
+          <ul className="space-y-1 text-sm">
+            {event.digitalStreamUrl ? (
+              <li>
+                <a
+                  href={event.digitalStreamUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--color-accent)] hover:underline"
+                >
+                  ▶ Se direktsändning
+                  {event.streamService && (
+                    <span className="text-[var(--color-fg-dim)]">
+                      {' '}
+                      ({event.streamService})
+                    </span>
+                  )}
+                </a>
+              </li>
+            ) : event.digitalStream === 'true' ? (
+              <li className="text-[var(--color-fg-dim)]">
+                Sänds digitalt
+                {event.streamService && ` via ${event.streamService}`}
+              </li>
+            ) : null}
+            {event.digitalArchiveUrl && (
+              <li>
+                <a
+                  href={event.digitalArchiveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--color-accent)] hover:underline"
+                >
+                  📼 Se i efterhand
+                </a>
+              </li>
+            )}
+            {event.interactiveLink && (
+              <li>
+                <a
+                  href={event.interactiveLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--color-accent)] hover:underline"
+                >
+                  {event.interactiveLinkDescription || prettyUrl(event.interactiveLink)}
+                </a>
+              </li>
+            )}
+          </ul>
+        </section>
+      )}
+
+      {event.accessibility && (
+        <section className="mb-4">
+          <h2 className="mb-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
+            Tillgänglighet
+          </h2>
+          <p className="text-sm whitespace-pre-line">{event.accessibility}</p>
+        </section>
+      )}
 
       {event.socialIssue && (
         <section className="mb-4">
@@ -174,36 +315,133 @@ export default function EventDetailRoute() {
             Medverkande
           </h2>
           <ul className="space-y-1 text-sm">
-            {speakers.map((p, i) => (
-              <li key={`${p.name}_${i}`}>
-                <strong className="font-medium">{p.name}</strong>
-                {p.title && (
-                  <span className="text-[var(--color-fg-dim)]">
-                    {' '}
-                    · {p.title}
-                  </span>
-                )}
-                {p.organization && (
-                  <span className="text-[var(--color-fg-dim)]">
-                    {' '}
-                    · {p.organization}
-                  </span>
-                )}
+            {speakers.map((p, i) => {
+              const party =
+                p.party && p.party.toLowerCase() !== 'none' ? p.party.trim() : null
+              return (
+                <li key={`${p.name}_${i}`}>
+                  <strong className="font-medium">{p.name}</strong>
+                  {party && (
+                    <span className="ml-1 rounded-full bg-[var(--color-accent)]/20 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-accent)]">
+                      {party}
+                    </span>
+                  )}
+                  {p.title && (
+                    <span className="text-[var(--color-fg-dim)]">
+                      {' '}
+                      · {p.title}
+                    </span>
+                  )}
+                  {p.organization && (
+                    <span className="text-[var(--color-fg-dim)]">
+                      {' '}
+                      · {p.organization}
+                    </span>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      )}
+
+      {(event.urls?.url1 || extraUrls.length > 0) && (
+        <section className="mb-4">
+          <h2 className="mb-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
+            Länkar
+          </h2>
+          <ul className="space-y-1 text-sm">
+            {event.urls?.url1 && (
+              <li>
+                <a
+                  href={event.urls.url1}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--color-accent)] underline"
+                >
+                  {prettyUrl(event.urls.url1)}
+                </a>
+              </li>
+            )}
+            {extraUrls.map((u) => (
+              <li key={u}>
+                <a
+                  href={u}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--color-accent)] underline"
+                >
+                  {prettyUrl(u)}
+                </a>
               </li>
             ))}
           </ul>
         </section>
       )}
 
-      {event.urls?.url1 && (
-        <a
-          href={event.urls.url1}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mb-4 inline-block text-xs text-[var(--color-accent)] underline"
-        >
-          {event.urls.url1.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-        </a>
+      {socials.length > 0 && (
+        <section className="mb-4">
+          <h2 className="mb-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
+            Sociala medier
+          </h2>
+          <ul className="flex flex-wrap gap-2 text-sm">
+            {socials.map((s) => (
+              <li key={s.key}>
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-0.5 text-xs text-[var(--color-accent)] hover:underline"
+                >
+                  {s.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {contacts.length > 0 && (showEmail || showPhone) && (
+        <section className="mb-4">
+          <h2 className="mb-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
+            Kontakt
+          </h2>
+          <ul className="space-y-2 text-sm">
+            {contacts.map((c, i) => (
+              <li key={`${c.name}_${i}`}>
+                <div>
+                  <strong className="font-medium">{c.name}</strong>
+                  {c.title && (
+                    <span className="text-[var(--color-fg-dim)]"> · {c.title}</span>
+                  )}
+                  {c.org && (
+                    <span className="text-[var(--color-fg-dim)]"> · {c.org}</span>
+                  )}
+                </div>
+                {showPhone && c.phone && (
+                  <div>
+                    <a
+                      href={`tel:${c.phone}`}
+                      className="text-[var(--color-accent)] hover:underline"
+                    >
+                      {c.phone}
+                    </a>
+                  </div>
+                )}
+                {showEmail && c.email && (
+                  <div>
+                    <a
+                      href={`mailto:${c.email}`}
+                      className="text-[var(--color-accent)] hover:underline"
+                    >
+                      {c.email}
+                    </a>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {similarEvents && similarEvents.length > 0 && (

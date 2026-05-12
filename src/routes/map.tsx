@@ -8,12 +8,9 @@ import maplibregl, {
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { loadEvents } from '../data/load'
 import type { EnrichedEvent } from '../data/types'
-import {
-  FOOD_FILTERS,
-  matchesFoodFilter,
-  type FoodFilter,
-} from '../data/food'
+import { hasFood } from '../data/food'
 import { EventCard } from '../components/EventCard'
+import { useUrlParam } from '../lib/urlState'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån' },
@@ -93,10 +90,15 @@ export default function MapRoute() {
   const navigate = useNavigate()
 
   const [events, setEvents] = useState<EnrichedEvent[]>([])
-  const [selectedDay, setSelectedDay] = useState<string | null>(null)
-  const [foodFilter, setFoodFilter] = useState<FoodFilter>('all')
+  const [dayParam, setDayParam] = useUrlParam('day', '')
+  const [foodParam, setFoodParam] = useUrlParam('food', '0')
   const [focusedIds, setFocusedIds] = useState<string[]>([])
   const [now, setNow] = useState(() => new Date())
+
+  const selectedDay: string | null = dayParam || null
+  const foodOnly = foodParam === '1'
+  const setSelectedDay = (v: string | null) => setDayParam(v ?? '')
+  const setFoodOnly = (v: boolean) => setFoodParam(v ? '1' : '0')
 
   useEffect(() => {
     loadEvents().then(setEvents)
@@ -111,10 +113,10 @@ export default function MapRoute() {
     () =>
       events.filter((e) => {
         if (selectedDay && e.date !== selectedDay) return false
-        if (!matchesFoodFilter(e, foodFilter)) return false
+        if (foodOnly && !hasFood(e)) return false
         return true
       }),
-    [events, selectedDay, foodFilter],
+    [events, selectedDay, foodOnly],
   )
 
   useEffect(() => {
@@ -316,22 +318,15 @@ export default function MapRoute() {
             </button>
           ))}
         </div>
-        <div className="pointer-events-auto flex gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)]/95 p-1 text-[11px] backdrop-blur">
-          {FOOD_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              type="button"
-              onClick={() => setFoodFilter(f.value)}
-              className={`rounded-full px-2.5 py-0.5 ${
-                foodFilter === f.value
-                  ? 'bg-[var(--color-accent)] text-black'
-                  : 'text-[var(--color-fg-dim)]'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+        <label className="pointer-events-auto inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)]/95 px-3 py-1 text-[11px] text-[var(--color-fg-dim)] backdrop-blur">
+          <input
+            type="checkbox"
+            checked={foodOnly}
+            onChange={(e) => setFoodOnly(e.target.checked)}
+            className="h-3.5 w-3.5 accent-[var(--color-accent)]"
+          />
+          Endast med mat
+        </label>
       </div>
       {focusedEvents.length > 0 && (
         <div className="absolute inset-x-0 bottom-0 z-10 max-h-[55svh] overflow-y-auto rounded-t-2xl border-t border-[var(--color-border)] bg-[var(--color-bg)]/97 p-4 backdrop-blur">
