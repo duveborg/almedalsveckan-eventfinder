@@ -81,7 +81,7 @@ export function EventCard({ event, now }: Props) {
         aria-label={saved ? 'Ta bort från schema' : 'Spara till schema'}
         className={`absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-lg transition-colors ${
           saved
-            ? 'bg-[var(--color-accent)] text-black'
+            ? 'bg-[var(--color-accent)] text-white'
             : 'bg-[var(--color-bg)] text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]'
         }`}
       >

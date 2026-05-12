@@ -143,7 +143,7 @@ export default function NowRoute() {
             onClick={() => setSelectedDate(null)}
             className={`rounded-full px-3 py-1.5 whitespace-nowrap ${
               selectedDate === null
-                ? 'bg-[var(--color-accent)] text-black'
+                ? 'bg-[var(--color-accent)] text-white'
                 : 'bg-[var(--color-surface)] text-[var(--color-fg-dim)]'
             }`}
           >
@@ -156,7 +156,7 @@ export default function NowRoute() {
               onClick={() => setSelectedDate(d.date)}
               className={`rounded-full px-3 py-1.5 whitespace-nowrap ${
                 selectedDate === d.date
-                  ? 'bg-[var(--color-accent)] text-black'
+                  ? 'bg-[var(--color-accent)] text-white'
                   : 'bg-[var(--color-surface)] text-[var(--color-fg-dim)]'
               }`}
             >

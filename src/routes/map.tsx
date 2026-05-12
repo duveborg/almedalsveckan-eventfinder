@@ -297,7 +297,7 @@ export default function MapRoute() {
             onClick={() => setSelectedDay(null)}
             className={`rounded-full px-3 py-1 ${
               selectedDay === null
-                ? 'bg-[var(--color-accent)] text-black'
+                ? 'bg-[var(--color-accent)] text-white'
                 : 'text-[var(--color-fg-dim)]'
             }`}
           >
@@ -310,7 +310,7 @@ export default function MapRoute() {
               onClick={() => setSelectedDay(d.date)}
               className={`rounded-full px-3 py-1 ${
                 selectedDay === d.date
-                  ? 'bg-[var(--color-accent)] text-black'
+                  ? 'bg-[var(--color-accent)] text-white'
                   : 'text-[var(--color-fg-dim)]'
               }`}
             >

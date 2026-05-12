@@ -182,7 +182,7 @@ export default function ScheduleRoute() {
                 onClick={() => setDay(d.date)}
                 className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 whitespace-nowrap ${
                   day === d.date
-                    ? 'bg-[var(--color-accent)] text-black'
+                    ? 'bg-[var(--color-accent)] text-white'
                     : 'bg-[var(--color-surface)] text-[var(--color-fg-dim)]'
                 }`}
               >

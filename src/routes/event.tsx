@@ -169,7 +169,7 @@ export default function EventDetailRoute() {
             aria-label={saved ? 'Ta bort från schema' : 'Spara till schema'}
             className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xl ${
               saved
-                ? 'bg-[var(--color-accent)] text-black'
+                ? 'bg-[var(--color-accent)] text-white'
                 : 'bg-[var(--color-bg)] text-[var(--color-fg-dim)]'
             }`}
           >

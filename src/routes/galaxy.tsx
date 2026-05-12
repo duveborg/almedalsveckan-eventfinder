@@ -263,7 +263,7 @@ npm run umap`}
                   onClick={() => toggleCluster(label)}
                   className={`rounded-full border px-2.5 py-1 text-[11px] backdrop-blur ${
                     active
-                      ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-black'
+                      ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-white'
                       : 'border-[var(--color-border)] bg-[var(--color-surface)]/80 text-[var(--color-fg-dim)]'
                   }`}
                 >

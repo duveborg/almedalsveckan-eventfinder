@@ -20,7 +20,7 @@ export default function App() {
       <main className="min-h-0 flex-1 overflow-hidden">
         <Outlet />
       </main>
-      <nav className="border-t border-[var(--color-border)] bg-[var(--color-surface)] pt-2">
+      <nav className="border-t border-[var(--color-border)] bg-[var(--color-surface)] pt-2 pb-2">
         <ul className="mx-auto flex max-w-md">
           {tabs.map((tab) => (
             <li key={tab.to} className="flex-1">
