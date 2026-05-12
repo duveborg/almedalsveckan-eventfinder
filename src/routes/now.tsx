@@ -319,7 +319,7 @@ export default function NowRoute() {
             </div>
           </div>
         )}
-        <div className="px-4 pb-3 text-[11px]">
+        <div className="px-4 pb-3 text-[13px]">
           <label className="inline-flex cursor-pointer items-center gap-2 text-[var(--color-fg-dim)]">
             <input
               type="checkbox"

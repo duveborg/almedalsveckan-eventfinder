@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { loadEvents } from '../data/load'
 import { loadEmbeddings, cosineInt8 } from '../data/galaxy'
 import type { EnrichedEvent } from '../data/types'
@@ -209,7 +209,7 @@ export default function EventDetailRoute() {
             rel="noopener noreferrer"
             className="mt-1 inline-block text-xs text-[var(--color-accent)] underline-offset-2 hover:underline"
           >
-            📍 {event.location.name}
+            📍 {event.location.name} - hitta hit!
           </a>
         )}
         {event.location?.description && (
@@ -241,12 +241,13 @@ export default function EventDetailRoute() {
         {event.topics.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
             {event.topics.map((t) => (
-              <span
+              <Link
                 key={t}
-                className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-0.5 text-[10px] text-[var(--color-fg-dim)]"
+                to={`/now?topics=${encodeURIComponent(t)}`}
+                className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-0.5 text-[10px] text-[var(--color-fg-dim)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
               >
                 {t}
-              </span>
+              </Link>
             ))}
           </div>
         )}
