@@ -6,6 +6,7 @@ const tabs = [
   { to: '/now', label: 'Nu' },
   { to: '/map', label: 'Karta' },
   { to: '/schedule', label: 'Schema' },
+  { to: '/for-dig', label: 'För dig' },
   { to: '/search', label: 'Sök' },
   { to: '/about', label: 'Om' },
 ]

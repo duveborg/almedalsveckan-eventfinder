@@ -78,3 +78,56 @@ export function cosineInt8(
   }
   return dot / (Math.sqrt(na) * Math.sqrt(nb) || 1)
 }
+
+export interface Ranked {
+  id: string
+  score: number
+}
+
+export function rankByCentroid(
+  meta: EmbeddingsMeta,
+  bytes: Int8Array,
+  seedIds: string[],
+  exclude: Set<string> = new Set(),
+): Ranked[] {
+  const { dims, count, ids, scales } = meta
+  const seedIdx: number[] = []
+  for (const id of seedIds) {
+    const i = ids.indexOf(id)
+    if (i >= 0) seedIdx.push(i)
+  }
+  if (seedIdx.length === 0) return []
+
+  const centroid = new Float64Array(dims)
+  for (const i of seedIdx) {
+    const scale = scales[i]
+    const base = i * dims
+    for (let j = 0; j < dims; j++) centroid[j] += bytes[base + j] * scale
+  }
+  let cnorm = 0
+  for (let j = 0; j < dims; j++) {
+    centroid[j] /= seedIdx.length
+    cnorm += centroid[j] * centroid[j]
+  }
+  cnorm = Math.sqrt(cnorm) || 1
+
+  const skip = new Set(exclude)
+  for (const id of seedIds) skip.add(id)
+  const out: Ranked[] = []
+  for (let i = 0; i < count; i++) {
+    const id = ids[i]
+    if (skip.has(id)) continue
+    const scale = scales[i]
+    const base = i * dims
+    let dot = 0
+    let nb = 0
+    for (let j = 0; j < dims; j++) {
+      const v = bytes[base + j] * scale
+      dot += centroid[j] * v
+      nb += v * v
+    }
+    out.push({ id, score: dot / (cnorm * (Math.sqrt(nb) || 1)) })
+  }
+  out.sort((a, b) => b.score - a.score)
+  return out
+}
