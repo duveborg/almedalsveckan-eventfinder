@@ -102,8 +102,8 @@ function chosenWindow(
   };
 }
 
-export default function NowRoute() {
-  useDocumentTitle("Nu");
+export default function FindRoute() {
+  useDocumentTitle("Hitta");
   const [events, setEvents] = useState<EnrichedEvent[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [dateParam, setDateParam] = useUrlParam("date", "");
@@ -240,7 +240,7 @@ export default function NowRoute() {
     <section className="mx-auto h-full max-w-md overflow-y-auto">
       <header className="border-b border-[var(--color-border)]">
         <div className="px-4 pb-3 pt-5">
-          <h1 className="text-2xl font-semibold">Nu</h1>
+          <h1 className="text-2xl font-semibold">Hitta</h1>
           <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
             {visible.length} event {" · "}
             {selectedDate === null

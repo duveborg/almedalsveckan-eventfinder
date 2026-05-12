@@ -3,7 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { useLocation } from './store/location'
 
 const tabs = [
-  { to: '/now', label: 'Nu' },
+  { to: '/find', label: 'Hitta' },
   { to: '/map', label: 'Karta' },
   { to: '/schedule', label: 'Ditt schema' },
   { to: '/for-dig', label: 'För dig' },

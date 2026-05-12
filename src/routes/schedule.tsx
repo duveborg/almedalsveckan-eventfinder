@@ -211,8 +211,8 @@ export default function ScheduleRoute() {
           <div className="rounded-xl bg-[var(--color-surface)] p-8 text-center">
             <p className="text-sm text-[var(--color-fg-dim)]">
               Inga sparade event ännu. Hitta något i{' '}
-              <Link to="/now" className="text-[var(--color-accent)] underline">
-                Nu
+              <Link to="/find" className="text-[var(--color-accent)] underline">
+                Hitta
               </Link>{' '}
               eller{' '}
               <Link to="/map" className="text-[var(--color-accent)] underline">
@@ -243,7 +243,7 @@ export default function ScheduleRoute() {
         {visibleSuggestions.length > 0 && (
           <div className="mt-8">
             <h2 className="mb-3 text-md font-semibold uppercase tracking-wider text-[var(--color-fg-dim)]">
-              Förslag — direkt efter...
+              Andra förslag — direkt efter...
             </h2>
             <ul className="space-y-6">
               {visibleSuggestions.map((s) => (

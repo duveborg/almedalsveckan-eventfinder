@@ -21,7 +21,7 @@ const WEEK_DAYS = [
   { date: '2026-06-26', label: 'Fre' },
 ]
 
-const VISBY: [number, number] = [18.296, 57.638]
+const VISBY: [number, number] = [18.293333, 57.641472]
 
 const OSM_STYLE: StyleSpecification = {
   version: 8,
@@ -126,7 +126,7 @@ export default function MapRoute() {
       container: containerRef.current,
       style: OSM_STYLE,
       center: VISBY,
-      zoom: 14,
+      zoom: 13,
       attributionControl: { compact: true },
     })
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
