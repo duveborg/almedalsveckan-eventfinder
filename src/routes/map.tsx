@@ -49,11 +49,11 @@ function shortRelativeTime(event: EnrichedEvent, now: Date): string {
   if (t > end) return ''
   if (t >= start) return 'nu'
   const min = Math.round((start - t) / 60000)
-  if (min < 60) return `${min}m`
+  if (min < 60) return `om ${min}m`
   const h = Math.round(min / 60)
-  if (h < 24) return `${h}h`
+  if (h < 24) return `om ${h}h`
   const d = Math.round(h / 24)
-  return `${d}d`
+  return `om ${d}d`
 }
 
 function toGeoJSON(
