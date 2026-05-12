@@ -43,9 +43,17 @@ export default function AboutRoute() {
             Bläddra i karta, schema och sök — eller se vad som händer just nu.
           </p>
           <p className="text-[var(--color-fg-dim)]">
-            Data hämtas från det officiella Almedalsprogrammet. Varje event
-            analyseras också utifrån sitt innehåll så att liknande event kan
-            hittas och du kan få personliga förslag i För dig.
+            Data hämtas från det{' '}
+            <a
+              href="https://almedalsveckan.info/rg/almedalsveckan/officiellt-program/program-2026"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--color-accent)] underline underline-offset-2 hover:opacity-80"
+            >
+              officiella Almedalsprogrammet
+            </a>
+            . Varje event analyseras också utifrån sitt innehåll så att liknande
+            event kan hittas och du kan få personliga förslag i För dig.
           </p>
         </div>
 

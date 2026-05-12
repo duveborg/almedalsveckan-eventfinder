@@ -9,11 +9,11 @@ import { haversineMeters } from '../lib/distance'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
 
 const WEEK_DAYS = [
-  { date: '2026-06-22', label: 'Mån 22/6' },
-  { date: '2026-06-23', label: 'Tis 23/6' },
-  { date: '2026-06-24', label: 'Ons 24/6' },
-  { date: '2026-06-25', label: 'Tor 25/6' },
-  { date: '2026-06-26', label: 'Fre 26/6' },
+  { date: '2026-06-22', label: 'Mån' },
+  { date: '2026-06-23', label: 'Tis' },
+  { date: '2026-06-24', label: 'Ons' },
+  { date: '2026-06-25', label: 'Tor' },
+  { date: '2026-06-26', label: 'Fre' },
 ]
 
 function overlaps(a: EnrichedEvent, b: EnrichedEvent): boolean {
