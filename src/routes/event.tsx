@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { loadEvents } from "../data/load";
 import { loadEmbeddings, cosineInt8 } from "../data/galaxy";
@@ -107,6 +107,11 @@ export default function EventDetailRoute() {
   const locationStatus = useLocation((s) => s.status);
   const requestLocation = useLocation((s) => s.request);
   const similar = useSimilar(eventId);
+  const scrollRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, [eventId]);
 
   const event = useMemo(
     () => events.find((e) => e.id === eventId) ?? null,
@@ -181,7 +186,10 @@ export default function EventDetailRoute() {
       : null;
 
   return (
-    <article className="mx-auto h-full max-w-md overflow-y-auto p-4 pb-16 md:max-w-2xl">
+    <article
+      ref={scrollRef}
+      className="mx-auto h-full max-w-md overflow-y-auto p-4 pb-16 md:max-w-2xl"
+    >
       <button
         type="button"
         onClick={goBack}
