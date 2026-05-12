@@ -6,21 +6,29 @@ interface Props {
   event: EnrichedEvent
 }
 
-function relativeMinutes(event: EnrichedEvent, now: Date): string {
+function formatDuration(totalMin: number): string {
+  if (totalMin < 60) return `${totalMin} min`
+  const h = Math.floor(totalMin / 60)
+  const min = totalMin % 60
+  if (h < 24) return min === 0 ? `${h} h` : `${h} h ${min} min`
+  const d = Math.floor(h / 24)
+  const remH = h % 24
+  return remH === 0 ? `${d} d` : `${d} d ${remH} h`
+}
+
+function relativeMinutes(event: EnrichedEvent, now: Date): string | null {
   const start = new Date(event.startISO).getTime()
   const end = new Date(event.endISO).getTime()
   const t = now.getTime()
+  const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000
   if (t < start) {
+    if (start - t >= TWELVE_HOURS_MS) return null
     const min = Math.round((start - t) / 60000)
-    if (min < 60) return `om ${min} min`
-    const h = Math.round(min / 60)
-    if (h < 24) return `om ${h} h`
-    const d = Math.round(h / 24)
-    return `om ${d} d`
+    return `om ${formatDuration(min)}`
   }
   if (t <= end) {
     const min = Math.max(0, Math.round((end - t) / 60000))
-    return `pågår · ${min} min kvar`
+    return `pågår · ${formatDuration(min)} kvar`
   }
   return 'avslutat'
 }
@@ -28,6 +36,7 @@ function relativeMinutes(event: EnrichedEvent, now: Date): string {
 export function EventCard({ event }: Props) {
   const saved = useSchedule((s) => s.savedIds.includes(event.id))
   const toggle = useSchedule((s) => s.toggle)
+  const relative = relativeMinutes(event, now())
 
   return (
     <article
@@ -35,17 +44,19 @@ export function EventCard({ event }: Props) {
       style={{ borderLeftColor: event.color?.main, borderLeftWidth: 4 }}
     >
       <Link to={`/event/${encodeURIComponent(event.id)}`} className="block p-4 pr-12">
+      {relative && (
+        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
+          {relative}
+        </div>
+      )}
         <div className="mb-1 flex items-center gap-2 text-[11px] uppercase tracking-wider text-[var(--color-fg-dim)]">
           <span>{event.weekDayName}</span>
           <span>·</span>
           <span>
             {event.startTime}–{event.endTime}
           </span>
-          <span>·</span>
-          <span className="font-semibold text-[var(--color-accent)]">
-            {relativeMinutes(event, now())}
-          </span>
         </div>
+ 
         <h3 className="text-sm font-semibold leading-snug text-[var(--color-fg)]">
           {event.title}
         </h3>
