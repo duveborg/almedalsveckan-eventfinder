@@ -1,29 +1,3 @@
-export interface GalaxyPoint {
-  id: string
-  x: number
-  y: number
-  cluster: number
-  label: string
-  color: string
-}
-
-export interface GalaxyFile {
-  count: number
-  generatedAt: string
-  points: GalaxyPoint[]
-}
-
-let cache: Promise<GalaxyFile | null> | null = null
-
-export function loadGalaxy(): Promise<GalaxyFile | null> {
-  if (!cache) {
-    cache = fetch('/umap.json')
-      .then((r) => (r.ok ? (r.json() as Promise<GalaxyFile>) : null))
-      .catch(() => null)
-  }
-  return cache
-}
-
 export interface EmbeddingsMeta {
   dims: number
   count: number

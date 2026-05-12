@@ -19,6 +19,10 @@ export default function App() {
 
   return (
     <div className="flex h-[100svh] flex-col">
+      <header className="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2">
+        <img src="/favicon.svg" alt="" className="h-5 w-5" />
+        <span className="text-sm font-semibold tracking-tight">Almedalen 2026</span>
+      </header>
       <main className="min-h-0 flex-1 overflow-hidden">
         <Outlet />
       </main>

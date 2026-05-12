@@ -9,11 +9,11 @@ Built with React, TypeScript and Vite. The UI is in Swedish.
 - **Nu** — events happening right now, nearby first.
 - **Karta** — MapLibre map of all events.
 - **Ditt schema** — events you've saved.
-- **För dig** — recommendations based on what you've saved, using OpenAI embeddings projected with UMAP.
+- **För dig** — recommendations based on what you've saved, using OpenAI embeddings.
 - **Sök** — full-text search via MiniSearch.
 - **Om** — about + share.
 
-Stack: React 19, React Router, Zustand, Tailwind v4, MapLibre GL, MiniSearch, UMAP.
+Stack: React 19, React Router, Zustand, Tailwind v4, MapLibre GL, MiniSearch.
 
 ## Develop
 
@@ -32,13 +32,12 @@ npm run preview
 
 ## Data pipeline
 
-The app reads a single static `public/events.json` plus precomputed embeddings and a UMAP projection. Regenerate with:
+The app reads a single static `public/events.json` plus precomputed embeddings. Regenerate with:
 
 ```sh
 npm run data           # scrape + enrich → public/events.json
 npm run data:cache     # same, but reuse data/events-raw.json
 npm run embed          # OpenAI embeddings → public/embeddings.{bin,meta.json}
-npm run umap           # 2D projection → public/umap.json
 ```
 
 `embed` requires `OPENAI_API_KEY` in the environment.
@@ -46,10 +45,10 @@ npm run umap           # 2D projection → public/umap.json
 ## Layout
 
 ```
-scripts/   data pipeline (scrape, enrich, embed, umap)
+scripts/   data pipeline (scrape, enrich, embed)
 src/
   routes/  one file per tab
-  data/    types, loading, search, galaxy (umap), food
+  data/    types, loading, search, embeddings, food
   store/   zustand stores (schedule, location)
   lib/     small utilities
 public/    static data consumed by the app
