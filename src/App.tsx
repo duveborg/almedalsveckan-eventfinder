@@ -29,7 +29,7 @@ export default function App() {
               <NavLink
                 to={tab.to}
                 className={({ isActive }) =>
-                  `flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${
+                  `flex flex-col items-start gap-1 py-3 pl-3 text-xs font-medium transition-colors ${
                     isActive
                       ? 'text-[var(--color-accent)]'
                       : 'text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]'
