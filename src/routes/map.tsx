@@ -11,6 +11,7 @@ import type { EnrichedEvent } from '../data/types'
 import { hasFood } from '../data/food'
 import { EventCard } from '../components/EventCard'
 import { useUrlParam } from '../lib/urlState'
+import { now as currentNow } from '../lib/now'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån' },
@@ -87,13 +88,12 @@ function toGeoJSON(
 export default function MapRoute() {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
-  const navigate = useNavigate()
 
   const [events, setEvents] = useState<EnrichedEvent[]>([])
   const [dayParam, setDayParam] = useUrlParam('day', '')
   const [foodParam, setFoodParam] = useUrlParam('food', '0')
   const [focusedIds, setFocusedIds] = useState<string[]>([])
-  const [now, setNow] = useState(() => new Date())
+  const [now, setNow] = useState(() => currentNow())
 
   const selectedDay: string | null = dayParam || null
   const foodOnly = foodParam === '1'
@@ -105,7 +105,7 @@ export default function MapRoute() {
   }, [])
 
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 30_000)
+    const id = setInterval(() => setNow(currentNow()), 30_000)
     return () => clearInterval(id)
   }, [])
 

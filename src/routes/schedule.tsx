@@ -243,7 +243,7 @@ export default function ScheduleRoute() {
             <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-fg-dim)]">
               Förslag — direkt efter
             </h2>
-            <ul className="space-y-2">
+            <ul className="space-y-6">
               {visibleSuggestions.map((s) => (
                 <li key={s.for.id + '_' + s.next.id}>
                   <div className="mb-1 px-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">

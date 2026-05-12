@@ -4,6 +4,7 @@ import type { EnrichedEvent } from '../data/types'
 import { hasFood } from '../data/food'
 import { EventCard } from '../components/EventCard'
 import { useUrlParam } from '../lib/urlState'
+import { now } from '../lib/now'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån' },
@@ -54,7 +55,7 @@ export default function NowRoute() {
   const [hourParam, setHourParam] = useUrlParam('h', String(HOUR_MIN))
   const [hourEndParam, setHourEndParam] = useUrlParam('h2', String(HOUR_MAX))
   const [foodParam, setFoodParam] = useUrlParam('food', '0')
-  const [actualNow, setActualNow] = useState(new Date())
+  const [actualNow, setActualNow] = useState(now())
 
   const selectedDate: string | null = dateParam || null
   const hourStart = Number(hourParam) || HOUR_MIN
@@ -78,7 +79,7 @@ export default function NowRoute() {
   }, [])
 
   useEffect(() => {
-    const id = setInterval(() => setActualNow(new Date()), 60_000)
+    const id = setInterval(() => setActualNow(now()), 60_000)
     return () => clearInterval(id)
   }, [])
 
