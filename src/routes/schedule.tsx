@@ -7,6 +7,7 @@ import { EventCard } from '../components/EventCard'
 import { useUrlParam } from '../lib/urlState'
 import { haversineMeters } from '../lib/distance'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
+import { downloadIcs } from '../lib/ics'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån' },
@@ -75,43 +76,6 @@ function suggestNext(
     .slice(0, 10)
 }
 
-function buildIcs(events: EnrichedEvent[]): string {
-  const lines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//almedalen-app//SE',
-    'CALSCALE:GREGORIAN',
-  ]
-  for (const e of events) {
-    const dtStart = new Date(e.startISO).toISOString().replace(/[-:]|\.\d{3}/g, '')
-    const dtEnd = new Date(e.endISO).toISOString().replace(/[-:]|\.\d{3}/g, '')
-    lines.push(
-      'BEGIN:VEVENT',
-      `UID:${e.id}@almedalen-app`,
-      `DTSTART:${dtStart}`,
-      `DTEND:${dtEnd}`,
-      `SUMMARY:${e.title.replace(/[\r\n,;]/g, ' ')}`,
-      `LOCATION:${(e.location?.name ?? '').replace(/[\r\n,;]/g, ' ')}`,
-      `URL:${e.url}`,
-      'END:VEVENT',
-    )
-  }
-  lines.push('END:VCALENDAR')
-  return lines.join('\r\n')
-}
-
-function downloadIcs(events: EnrichedEvent[]) {
-  const blob = new Blob([buildIcs(events)], { type: 'text/calendar' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'almedalen-mitt-schema.ics'
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
-  URL.revokeObjectURL(url)
-}
-
 export default function ScheduleRoute() {
   useDocumentTitle('Ditt schema')
   const [events, setEvents] = useState<EnrichedEvent[]>([])
@@ -167,7 +131,7 @@ export default function ScheduleRoute() {
           {savedEvents.length > 0 && (
             <button
               type="button"
-              onClick={() => downloadIcs(savedEvents)}
+              onClick={() => downloadIcs(savedEvents, 'almedalen-mitt-schema.ics')}
               className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]"
             >
               Exportera till kalender

@@ -103,7 +103,7 @@ function chosenWindow(
 }
 
 export default function FindRoute() {
-  useDocumentTitle("Hitta");
+  useDocumentTitle("Hitta evenemang");
   const [events, setEvents] = useState<EnrichedEvent[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [dateParam, setDateParam] = useUrlParam("date", "");
@@ -240,7 +240,7 @@ export default function FindRoute() {
     <section className="mx-auto h-full max-w-md overflow-y-auto md:max-w-2xl">
       <header className="border-b border-[var(--color-border)]">
         <div className="px-4 pb-3 pt-5">
-          <h1 className="text-2xl font-semibold">Hitta</h1>
+          <h1 className="text-2xl font-semibold">Hitta evenemang</h1>
           <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
             {visible.length} event {" · "}
             {selectedDate === null

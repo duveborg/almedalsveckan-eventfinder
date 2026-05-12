@@ -10,6 +10,7 @@ import { haversineMeters, formatDistance } from '../lib/distance'
 import { hasFood } from '../data/food'
 import { now } from '../lib/now'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
+import { downloadIcs } from '../lib/ics'
 
 interface SimilarHit {
   id: string
@@ -26,6 +27,17 @@ function formatDuration(min: number | null): string | null {
 
 function prettyUrl(url: string): string {
   return url.replace(/^https?:\/\//, '').replace(/\/$/, '')
+}
+
+function icsFilename(title: string): string {
+  const slug = title
+    .toLowerCase()
+    .replace(/[åä]/g, 'a')
+    .replace(/ö/g, 'o')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60)
+  return `${slug || 'event'}.ics`
 }
 
 const SOCIAL_LABELS: Array<[
@@ -198,6 +210,13 @@ export default function EventDetailRoute() {
           {event.weekDayName} {event.shortDate} · {event.startTime}–{event.endTime}
           {duration && ` · ${duration}`}
         </div>
+        <button
+          type="button"
+          onClick={() => downloadIcs([event], icsFilename(event.title))}
+          className="mt-1 text-xs text-[var(--color-accent)] underline-offset-2 hover:underline"
+        >
+          📅 Lägg till i kalender
+        </button>
         {metaLine && (
           <div className="mt-1 text-xs text-[var(--color-fg-dim)]">{metaLine}</div>
         )}
