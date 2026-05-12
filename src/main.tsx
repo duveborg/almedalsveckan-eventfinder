@@ -6,7 +6,8 @@ import App from './App.tsx'
 import NowRoute from './routes/now.tsx'
 import MapRoute from './routes/map.tsx'
 import ScheduleRoute from './routes/schedule.tsx'
-import GalaxyRoute from './routes/galaxy.tsx'
+import SearchRoute from './routes/search.tsx'
+import AboutRoute from './routes/about.tsx'
 import EventDetailRoute from './routes/event.tsx'
 
 createRoot(document.getElementById('root')!).render(
@@ -18,7 +19,8 @@ createRoot(document.getElementById('root')!).render(
           <Route path="now" element={<NowRoute />} />
           <Route path="map" element={<MapRoute />} />
           <Route path="schedule" element={<ScheduleRoute />} />
-          <Route path="galaxy" element={<GalaxyRoute />} />
+          <Route path="search" element={<SearchRoute />} />
+          <Route path="about" element={<AboutRoute />} />
           <Route path="event/:id" element={<EventDetailRoute />} />
         </Route>
       </Routes>

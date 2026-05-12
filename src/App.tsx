@@ -6,7 +6,8 @@ const tabs = [
   { to: '/now', label: 'Nu' },
   { to: '/map', label: 'Karta' },
   { to: '/schedule', label: 'Schema' },
-  { to: '/galaxy', label: 'Galax' },
+  { to: '/search', label: 'Sök' },
+  { to: '/about', label: 'Om' },
 ]
 
 export default function App() {
