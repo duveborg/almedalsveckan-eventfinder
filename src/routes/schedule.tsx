@@ -6,6 +6,7 @@ import { useSchedule } from '../store/schedule'
 import { EventCard } from '../components/EventCard'
 import { useUrlParam } from '../lib/urlState'
 import { haversineMeters } from '../lib/distance'
+import { useDocumentTitle } from '../lib/useDocumentTitle'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån 22/6' },
@@ -112,6 +113,7 @@ function downloadIcs(events: EnrichedEvent[]) {
 }
 
 export default function ScheduleRoute() {
+  useDocumentTitle('Ditt schema')
   const [events, setEvents] = useState<EnrichedEvent[]>([])
   const [day, setDay] = useUrlParam('day', WEEK_DAYS[0].date)
   const savedIds = useSchedule((s) => s.savedIds)

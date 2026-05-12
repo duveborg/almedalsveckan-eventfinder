@@ -11,6 +11,7 @@ import { hasFood } from '../data/food'
 import { EventCard } from '../components/EventCard'
 import { useUrlParam } from '../lib/urlState'
 import { now as currentNow } from '../lib/now'
+import { useDocumentTitle } from '../lib/useDocumentTitle'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån' },
@@ -85,6 +86,7 @@ function toGeoJSON(
 }
 
 export default function MapRoute() {
+  useDocumentTitle('Karta')
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
 

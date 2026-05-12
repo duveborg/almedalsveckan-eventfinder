@@ -5,13 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "tsx scripts/sitemap.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "data": "tsx scripts/build-data.ts",
     "data:cache": "tsx scripts/build-data.ts --cache",
     "embed": "tsx scripts/embed.ts",
-    "umap": "tsx scripts/umap.ts"
+    "umap": "tsx scripts/umap.ts",
+    "sitemap": "tsx scripts/sitemap.ts"
   },
   "dependencies": {
     "date-fns": "^4.1.0",

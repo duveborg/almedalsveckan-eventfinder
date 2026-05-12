@@ -4,10 +4,12 @@ import { loadEmbeddings, rankByCentroid, type Ranked } from '../data/galaxy'
 import type { EnrichedEvent } from '../data/types'
 import { useSchedule } from '../store/schedule'
 import { EventCard } from '../components/EventCard'
+import { useDocumentTitle } from '../lib/useDocumentTitle'
 
 const TOP_N = 30
 
 export default function ForDigRoute() {
+  useDocumentTitle('För dig')
   const [events, setEvents] = useState<EnrichedEvent[]>([])
   const [ranked, setRanked] = useState<Ranked[] | null>(null)
   const [embeddingsMissing, setEmbeddingsMissing] = useState(false)

@@ -5,6 +5,7 @@ import { hasFood } from "../data/food";
 import { EventCard } from "../components/EventCard";
 import { useUrlParam, useUrlSet } from "../lib/urlState";
 import { now } from "../lib/now";
+import { useDocumentTitle } from "../lib/useDocumentTitle";
 
 function topTopics(events: EnrichedEvent[], n: number): string[] {
   const counts = new Map<string, number>();
@@ -72,6 +73,7 @@ function chosenWindow(
 }
 
 export default function NowRoute() {
+  useDocumentTitle("Nu");
   const [events, setEvents] = useState<EnrichedEvent[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [dateParam, setDateParam] = useUrlParam("date", "");

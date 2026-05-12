@@ -4,8 +4,10 @@ import type { EnrichedEvent } from '../data/types'
 import { keywordSearch } from '../data/search'
 import { EventCard } from '../components/EventCard'
 import { useUrlParam } from '../lib/urlState'
+import { useDocumentTitle } from '../lib/useDocumentTitle'
 
 export default function SearchRoute() {
+  useDocumentTitle('Sök')
   const [events, setEvents] = useState<EnrichedEvent[]>([])
   const [query, setQuery] = useUrlParam('q', '')
 

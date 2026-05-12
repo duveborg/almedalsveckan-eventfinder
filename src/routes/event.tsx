@@ -9,6 +9,7 @@ import { useLocation } from '../store/location'
 import { haversineMeters, formatDistance } from '../lib/distance'
 import { hasFood } from '../data/food'
 import { now } from '../lib/now'
+import { useDocumentTitle } from '../lib/useDocumentTitle'
 
 interface SimilarHit {
   id: string
@@ -85,6 +86,12 @@ export default function EventDetailRoute() {
   const requestLocation = useLocation((s) => s.request)
   const similar = useSimilar(eventId)
 
+  const event = useMemo(
+    () => events.find((e) => e.id === eventId) ?? null,
+    [events, eventId],
+  )
+  useDocumentTitle(event?.title ?? null)
+
   const goBack = () => {
     if (window.history.state && window.history.state.idx > 0) {
       navigate(-1)
@@ -96,11 +103,6 @@ export default function EventDetailRoute() {
   useEffect(() => {
     loadEvents().then(setEvents)
   }, [])
-
-  const event = useMemo(
-    () => events.find((e) => e.id === eventId) ?? null,
-    [events, eventId],
-  )
 
   const similarEvents = useMemo(() => {
     if (!similar) return null

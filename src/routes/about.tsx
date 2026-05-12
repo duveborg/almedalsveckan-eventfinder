@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useDocumentTitle } from '../lib/useDocumentTitle'
 
 export default function AboutRoute() {
+  useDocumentTitle('Om')
   const [copied, setCopied] = useState(false)
 
   const handleShare = async () => {
