@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
+import { useLocation } from './store/location'
 
 const tabs = [
   { to: '/now', label: 'Nu' },
@@ -8,6 +10,11 @@ const tabs = [
 ]
 
 export default function App() {
+  const requestLocation = useLocation((s) => s.request)
+  useEffect(() => {
+    requestLocation()
+  }, [requestLocation])
+
   return (
     <div className="flex h-[100svh] flex-col">
       <main className="min-h-0 flex-1 overflow-hidden">

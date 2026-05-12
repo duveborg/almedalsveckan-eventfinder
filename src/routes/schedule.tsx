@@ -5,6 +5,7 @@ import type { EnrichedEvent } from '../data/types'
 import { useSchedule } from '../store/schedule'
 import { EventCard } from '../components/EventCard'
 import { useUrlParam } from '../lib/urlState'
+import { haversineMeters } from '../lib/distance'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån 22/6' },
@@ -21,22 +22,6 @@ function overlaps(a: EnrichedEvent, b: EnrichedEvent): boolean {
   const bs = new Date(b.startISO).getTime()
   const be = new Date(b.endISO).getTime()
   return as < be && bs < ae
-}
-
-function haversineMeters(
-  a: { lat: number; lng: number },
-  b: { lat: number; lng: number },
-): number {
-  const R = 6371000
-  const toRad = (d: number) => (d * Math.PI) / 180
-  const dLat = toRad(b.lat - a.lat)
-  const dLng = toRad(b.lng - a.lng)
-  const lat1 = toRad(a.lat)
-  const lat2 = toRad(b.lat)
-  const x =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2
-  return 2 * R * Math.asin(Math.sqrt(x))
 }
 
 function suggestNext(
@@ -257,23 +242,12 @@ export default function ScheduleRoute() {
             </h2>
             <ul className="space-y-2">
               {suggestions.map((s) => (
-                <li
-                  key={s.for.id + '_' + s.next.id}
-                  className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
-                >
-                  <div className="mb-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
-                    {Math.round(s.gapMin)} min efter
+                <li key={s.for.id + '_' + s.next.id}>
+                  <div className="mb-1 px-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
+                    {Math.round(s.gapMin)} min efter {s.for.title}
                     {s.meters != null && ` · ${Math.round(s.meters)} m bort`}
                   </div>
-                  <Link
-                    to={`/event/${encodeURIComponent(s.next.id)}`}
-                    className="block text-sm font-semibold hover:text-[var(--color-accent)]"
-                  >
-                    {s.next.title}
-                  </Link>
-                  <div className="mt-1 text-xs text-[var(--color-fg-dim)]">
-                    {s.next.startTime}–{s.next.endTime} · {s.next.location?.name}
-                  </div>
+                  <EventCard event={s.next} />
                 </li>
               ))}
             </ul>

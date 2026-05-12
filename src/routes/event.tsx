@@ -5,6 +5,8 @@ import { loadEmbeddings, cosineInt8 } from '../data/galaxy'
 import type { EnrichedEvent } from '../data/types'
 import { EventCard } from '../components/EventCard'
 import { useSchedule } from '../store/schedule'
+import { useLocation } from '../store/location'
+import { haversineMeters, formatDistance } from '../lib/distance'
 
 interface SimilarHit {
   id: string
@@ -47,7 +49,7 @@ function useSimilar(eventId: string | undefined): SimilarHit[] | null {
       const tscale = meta.scales[target]
       const scored: SimilarHit[] = []
       for (let i = 0; i < meta.count; i++) {
-        if (i === target) continue
+        if (meta.ids[i] === eventId) continue
         const s = cosineInt8(
           bytes,
           bytes,
@@ -76,6 +78,9 @@ export default function EventDetailRoute() {
   const [events, setEvents] = useState<EnrichedEvent[]>([])
   const saved = useSchedule((s) => (eventId ? s.savedIds.includes(eventId) : false))
   const toggle = useSchedule((s) => s.toggle)
+  const userCoords = useLocation((s) => s.coords)
+  const locationStatus = useLocation((s) => s.status)
+  const requestLocation = useLocation((s) => s.request)
   const similar = useSimilar(eventId)
 
   const goBack = () => {
@@ -130,6 +135,17 @@ export default function EventDetailRoute() {
     !!event.digitalStreamUrl ||
     !!event.digitalArchiveUrl ||
     !!event.interactiveLink
+
+  const eventLat = event.location?.latitude
+  const eventLng = event.location?.longitude
+  const hasCoords = eventLat != null && eventLng != null
+  const distanceMeters =
+    hasCoords && userCoords
+      ? haversineMeters(
+          { lat: userCoords.lat, lng: userCoords.lng },
+          { lat: eventLat, lng: eventLng },
+        )
+      : null
 
   return (
     <article className="mx-auto h-full max-w-md overflow-y-auto p-4">
@@ -194,6 +210,27 @@ export default function EventDetailRoute() {
         {event.location?.description && (
           <div className="mt-0.5 text-xs text-[var(--color-fg-dim)]">
             {event.location.description}
+          </div>
+        )}
+        {hasCoords && (
+          <div className="mt-1 text-xs text-[var(--color-fg-dim)]">
+            {distanceMeters != null ? (
+              <span>📏 {formatDistance(distanceMeters)}</span>
+            ) : locationStatus === 'requesting' ? (
+              <span>📏 Hämtar din plats …</span>
+            ) : locationStatus === 'denied' ? (
+              <span>📏 Plats nekad – tillåt i webbläsaren för att se avstånd</span>
+            ) : locationStatus === 'unsupported' ? (
+              <span>📏 Plats stöds inte i denna webbläsare</span>
+            ) : (
+              <button
+                type="button"
+                onClick={requestLocation}
+                className="text-[var(--color-accent)] underline-offset-2 hover:underline"
+              >
+                📏 Visa avstånd från mig
+              </button>
+            )}
           </div>
         )}
         {event.topics.length > 0 && (
