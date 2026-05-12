@@ -62,7 +62,7 @@ export default function ForDigRoute() {
         <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
           {savedIds.length === 0
             ? 'Spara event i schemat så hittar vi liknande åt dig.'
-            : `Baserat på ${savedIds.length} spara${savedIds.length === 1 ? 't' : 'de'} event`}
+            : `Baserat på ${savedIds.length} evenemang i ditt schema`}
         </p>
       </header>
 
