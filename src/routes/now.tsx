@@ -89,10 +89,6 @@ export default function NowRoute() {
     hourEnd,
     actualNow,
   )
-  const isLive =
-    selectedDate === null &&
-    actualNow.getTime() >= WEEK_START_MS &&
-    actualNow.getTime() <= WEEK_END_MS
 
   const visible = useMemo(() => {
     const startMs = cursor.getTime()
@@ -220,7 +216,7 @@ export default function NowRoute() {
       <ul className="space-y-2 p-4">
         {visible.slice(0, 50).map((e) => (
           <li key={e.id}>
-            <EventCard event={e} now={isLive ? cursor : undefined} />
+            <EventCard event={e} />
           </li>
         ))}
         {visible.length === 0 && (

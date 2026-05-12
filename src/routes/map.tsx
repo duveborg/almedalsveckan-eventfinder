@@ -344,7 +344,7 @@ export default function MapRoute() {
           <ul className="space-y-2 pb-4">
             {focusedEvents.map((e) => (
               <li key={e.id}>
-                <EventCard event={e} now={now} />
+                <EventCard event={e} />
               </li>
             ))}
           </ul>

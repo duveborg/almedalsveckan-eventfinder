@@ -247,7 +247,7 @@ export default function ScheduleRoute() {
               {visibleSuggestions.map((s) => (
                 <li key={s.for.id + '_' + s.next.id}>
                   <div className="mb-1 px-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
-                    {Math.round(s.gapMin)} min efter {s.for.title}
+                    {Math.round(s.gapMin)} min efter <b>{s.for.title}</b>
                     {s.meters != null && ` · ${Math.round(s.meters)} m bort`}
                   </div>
                   <EventCard event={s.next} />

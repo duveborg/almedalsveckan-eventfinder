@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom'
 import type { EnrichedEvent } from '../data/types'
 import { useSchedule } from '../store/schedule'
-
+import { now } from '../lib/now'
 interface Props {
   event: EnrichedEvent
-  now?: Date
 }
 
 function relativeMinutes(event: EnrichedEvent, now: Date): string {
@@ -26,7 +25,7 @@ function relativeMinutes(event: EnrichedEvent, now: Date): string {
   return 'avslutat'
 }
 
-export function EventCard({ event, now }: Props) {
+export function EventCard({ event }: Props) {
   const saved = useSchedule((s) => s.savedIds.includes(event.id))
   const toggle = useSchedule((s) => s.toggle)
 
@@ -42,14 +41,10 @@ export function EventCard({ event, now }: Props) {
           <span>
             {event.startTime}–{event.endTime}
           </span>
-          {now && (
-            <>
-              <span>·</span>
-              <span className="font-semibold text-[var(--color-accent)]">
-                {relativeMinutes(event, now)}
-              </span>
-            </>
-          )}
+          <span>·</span>
+          <span className="font-semibold text-[var(--color-accent)]">
+            {relativeMinutes(event, now())}
+          </span>
         </div>
         <h3 className="text-sm font-semibold leading-snug text-[var(--color-fg)]">
           {event.title}

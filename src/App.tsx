@@ -25,7 +25,7 @@ export default function App() {
       <nav className="border-t border-[var(--color-border)] bg-[var(--color-surface)] pt-2 pb-2">
         <ul className="mx-auto flex max-w-md">
           {tabs.map((tab) => (
-            <li key={tab.to} className="flex-1">
+            <li key={tab.to} className="min-w-0 flex-1">
               <NavLink
                 to={tab.to}
                 className={({ isActive }) =>
