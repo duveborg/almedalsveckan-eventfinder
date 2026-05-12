@@ -68,7 +68,7 @@ export default function AboutRoute() {
             <polyline points="16 6 12 2 8 6" />
             <line x1="12" y1="2" x2="12" y2="15" />
           </svg>
-          {copied ? 'Länk kopierad' : 'Dela appen'}
+          {copied ? 'Länk kopierad' : 'Dela sajten'}
         </button>
       </div>
     </section>

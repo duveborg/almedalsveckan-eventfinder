@@ -19,6 +19,18 @@ function topTopics(events: EnrichedEvent[], n: number): string[] {
     .map(([t]) => t);
 }
 
+function topEventTypes(events: EnrichedEvent[], n: number): string[] {
+  const counts = new Map<string, number>();
+  for (const e of events) {
+    if (!e.eventType) continue;
+    counts.set(e.eventType, (counts.get(e.eventType) ?? 0) + 1);
+  }
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n)
+    .map(([t]) => t);
+}
+
 const WEEK_DAYS = [
   { date: "2026-06-22", label: "Mån" },
   { date: "2026-06-23", label: "Tis" },
@@ -67,6 +79,7 @@ export default function NowRoute() {
   const [hourEndParam, setHourEndParam] = useUrlParam("h2", String(HOUR_MAX));
   const [foodParam, setFoodParam] = useUrlParam("food", "0");
   const [activeTopics, setActiveTopics] = useUrlSet("topics");
+  const [activeEventTypes, setActiveEventTypes] = useUrlSet("types");
   const [actualNow, setActualNow] = useState(now());
 
   const selectedDate: string | null = dateParam || null;
@@ -89,6 +102,12 @@ export default function NowRoute() {
     else next.add(t);
     setActiveTopics(next);
   };
+  const toggleEventType = (t: string) => {
+    const next = new Set(activeEventTypes);
+    if (next.has(t)) next.delete(t);
+    else next.add(t);
+    setActiveEventTypes(next);
+  };
 
   useEffect(() => {
     loadEvents()
@@ -109,6 +128,7 @@ export default function NowRoute() {
   );
 
   const topicChips = useMemo(() => topTopics(events, 20), [events]);
+  const eventTypeChips = useMemo(() => topEventTypes(events, 20), [events]);
 
   const visible = useMemo(() => {
     const startMs = cursor.getTime();
@@ -121,13 +141,18 @@ export default function NowRoute() {
         if (foodOnly && !hasFood(e)) return false;
         if (activeTopics.size > 0 && !e.topics.some((t) => activeTopics.has(t)))
           return false;
+        if (
+          activeEventTypes.size > 0 &&
+          (!e.eventType || !activeEventTypes.has(e.eventType))
+        )
+          return false;
         return true;
       })
       .sort(
         (a, b) =>
           new Date(a.startISO).getTime() - new Date(b.startISO).getTime(),
       );
-  }, [events, cursor, cursorEnd, foodOnly, activeTopics]);
+  }, [events, cursor, cursorEnd, foodOnly, activeTopics, activeEventTypes]);
 
   if (error)
     return (
@@ -225,8 +250,21 @@ export default function NowRoute() {
         )}
 
         {topicChips.length > 0 && (
-          <div className="flex gap-1 overflow-x-auto px-4 pb-3 text-xs">
-            {topicChips.map((t) => {
+          <div className="px-4 pb-3">
+            <div className="mb-1 flex items-baseline justify-between text-[11px]">
+              <span className="text-[var(--color-fg-dim)]">Ämnen</span>
+              {activeTopics.size > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTopics(new Set())}
+                  className="text-[var(--color-fg-dim)] underline"
+                >
+                  Rensa
+                </button>
+              )}
+            </div>
+            <div className="-mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
+              {topicChips.map((t) => {
               const active = activeTopics.has(t);
               return (
                 <button
@@ -243,6 +281,42 @@ export default function NowRoute() {
                 </button>
               );
             })}
+            </div>
+          </div>
+        )}
+        {eventTypeChips.length > 0 && (
+          <div className="px-4 pb-3">
+            <div className="mb-1 flex items-baseline justify-between text-[11px]">
+              <span className="text-[var(--color-fg-dim)]">Typ</span>
+              {activeEventTypes.size > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveEventTypes(new Set())}
+                  className="text-[var(--color-fg-dim)] underline"
+                >
+                  Rensa
+                </button>
+              )}
+            </div>
+            <div className="-mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
+              {eventTypeChips.map((t) => {
+                const active = activeEventTypes.has(t);
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => toggleEventType(t)}
+                    className={`rounded-full px-3 py-1.5 whitespace-nowrap ${
+                      active
+                        ? "bg-[var(--color-accent)] text-white"
+                        : "bg-[var(--color-surface)] text-[var(--color-fg-dim)]"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
         <div className="px-4 pb-3 text-[11px]">
