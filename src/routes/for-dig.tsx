@@ -5,6 +5,7 @@ import type { EnrichedEvent } from '../data/types'
 import { useSchedule } from '../store/schedule'
 import { EventCard } from '../components/EventCard'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
+import { now } from '../lib/now'
 
 const TOP_N = 30
 
@@ -42,10 +43,13 @@ export default function ForDigRoute() {
   const items = useMemo(() => {
     if (!ranked) return []
     const byId = new Map(events.map((e) => [e.id, e]))
+    const cutoff = now().getTime()
     const out: { event: EnrichedEvent; score: number }[] = []
     for (const r of ranked) {
       const e = byId.get(r.id)
-      if (e) out.push({ event: e, score: r.score })
+      if (e && new Date(e.endISO).getTime() > cutoff) {
+        out.push({ event: e, score: r.score })
+      }
       if (out.length >= TOP_N) break
     }
     return out
