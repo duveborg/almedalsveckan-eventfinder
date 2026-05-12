@@ -8,6 +8,7 @@ import { useSchedule } from '../store/schedule'
 import { useLocation } from '../store/location'
 import { haversineMeters, formatDistance } from '../lib/distance'
 import { hasFood } from '../data/food'
+import { now } from '../lib/now'
 
 interface SimilarHit {
   id: string
@@ -63,7 +64,7 @@ function useSimilar(eventId: string | undefined): SimilarHit[] | null {
         scored.push({ id: meta.ids[i], score: s })
       }
       scored.sort((a, b) => b.score - a.score)
-      if (!cancelled) setHits(scored.slice(0, 6))
+      if (!cancelled) setHits(scored.slice(0, 50))
     })
     return () => {
       cancelled = true
@@ -104,9 +105,11 @@ export default function EventDetailRoute() {
   const similarEvents = useMemo(() => {
     if (!similar) return null
     const byId = new Map(events.map((e) => [e.id, e]))
+    const cutoff = now().getTime()
     return similar
       .map((h) => byId.get(h.id))
-      .filter((e): e is EnrichedEvent => !!e)
+      .filter((e): e is EnrichedEvent => !!e && new Date(e.endISO).getTime() > cutoff)
+      .slice(0, 6)
   }, [similar, events])
 
   if (!event)

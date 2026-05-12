@@ -23,13 +23,13 @@ export default function App() {
         <Outlet />
       </main>
       <nav className="border-t border-[var(--color-border)] bg-[var(--color-surface)] pt-2 pb-2">
-        <ul className="mx-auto flex max-w-md">
+        <ul className="mx-auto flex max-w-md justify-center gap-6">
           {tabs.map((tab) => (
-            <li key={tab.to} className="min-w-0 flex-1">
+            <li key={tab.to}>
               <NavLink
                 to={tab.to}
                 className={({ isActive }) =>
-                  `flex flex-col items-start gap-1 py-3 pl-3 text-xs font-medium transition-colors ${
+                  `flex flex-col items-start gap-1 py-3 text-xs font-medium transition-colors ${
                     isActive
                       ? 'text-[var(--color-accent)]'
                       : 'text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]'

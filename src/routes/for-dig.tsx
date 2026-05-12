@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { loadEvents } from '../data/load'
 import { loadEmbeddings, rankByCentroid, type Ranked } from '../data/galaxy'
 import type { EnrichedEvent } from '../data/types'
@@ -64,15 +63,7 @@ export default function ForDigRoute() {
       <div className="p-4">
         {savedIds.length === 0 ? (
           <div className="rounded-xl bg-[var(--color-surface)] p-8 text-center text-sm text-[var(--color-fg-dim)]">
-            Stjärnmärk några event i{' '}
-            <Link to="/now" className="text-[var(--color-accent)] underline">
-              Nu
-            </Link>{' '}
-            eller{' '}
-            <Link to="/search" className="text-[var(--color-accent)] underline">
-              Sök
-            </Link>
-            , så får du förslag här.
+            Lägg till några event i schemat så får du förslag här.
           </div>
         ) : embeddingsMissing ? (
           <div className="rounded-xl bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-fg-dim)]">
