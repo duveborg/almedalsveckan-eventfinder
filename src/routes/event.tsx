@@ -7,6 +7,7 @@ import { EventCard } from '../components/EventCard'
 import { useSchedule } from '../store/schedule'
 import { useLocation } from '../store/location'
 import { haversineMeters, formatDistance } from '../lib/distance'
+import { hasFood } from '../data/food'
 
 interface SimilarHit {
   id: string
@@ -135,6 +136,7 @@ export default function EventDetailRoute() {
     !!event.digitalStreamUrl ||
     !!event.digitalArchiveUrl ||
     !!event.interactiveLink
+  const foodServed = hasFood(event)
 
   const eventLat = event.location?.latitude
   const eventLng = event.location?.longitude
@@ -243,6 +245,13 @@ export default function EventDetailRoute() {
                 {t}
               </span>
             ))}
+          </div>
+        )}
+        {foodServed && (
+          <div className="mt-2 text-xs">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-[var(--color-accent)]">
+              🍽 Mat serveras
+            </span>
           </div>
         )}
       </header>

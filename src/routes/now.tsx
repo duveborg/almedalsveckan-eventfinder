@@ -105,7 +105,7 @@ export default function NowRoute() {
 
   return (
     <section className="mx-auto h-full max-w-md overflow-y-auto">
-      <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
+      <header className="border-b border-[var(--color-border)]">
         <div className="px-4 pb-3 pt-5">
           <h1 className="text-2xl font-semibold">Nu</h1>
           <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
