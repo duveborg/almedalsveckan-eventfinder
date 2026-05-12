@@ -70,6 +70,19 @@ export default function AboutRoute() {
           </svg>
           {copied ? 'Länk kopierad' : 'Dela sajten'}
         </button>
+
+        <p className="text-sm text-[var(--color-fg-dim)]">
+          Lämna gärna feedback{' '}
+          <a
+            href="https://github.com/duveborg/almedalsveckan-eventfinder/discussions"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--color-accent)] underline underline-offset-2 hover:opacity-80"
+          >
+            här
+          </a>
+          .
+        </p>
       </div>
     </section>
   )
