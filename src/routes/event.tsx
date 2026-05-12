@@ -114,7 +114,18 @@ export default function EventDetailRoute() {
           {event.weekDayName} {event.shortDate} · {event.startTime}–{event.endTime}
         </div>
         {event.location?.name && (
-          <div className="mt-1 text-xs">📍 {event.location.name}</div>
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${
+              event.location.latitude != null && event.location.longitude != null
+                ? `${event.location.latitude},${event.location.longitude}`
+                : encodeURIComponent(`${event.location.name}, Visby`)
+            }`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 inline-block text-xs underline-offset-2 hover:underline"
+          >
+            📍 {event.location.name}
+          </a>
         )}
         {event.topics.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
