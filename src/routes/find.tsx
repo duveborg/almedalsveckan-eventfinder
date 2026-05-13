@@ -329,7 +329,7 @@ export default function FindRoute() {
         {selectedDate !== null && selectedDate !== "all" && (
           <div className="px-4 pb-3">
             <div className="mb-1 flex items-baseline justify-between text-[11px]">
-              <span className="text-[var(--color-fg-dim)]">Tidsspann</span>
+              <span className="text-[var(--color-fg-dim)]">Mellan tiderna</span>
               <span className="font-medium text-[var(--color-fg)]">
                 {String(hourStart).padStart(2, "0")}:00–
                 {String(hourEnd).padStart(2, "0")}:00
@@ -541,7 +541,7 @@ export default function FindRoute() {
         ))}
         {visible.length === 0 && (
           <li className="rounded-lg bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-fg-dim)]">
-            Inga event i fönstret. Prova ett annat tidsspann.
+            Hittade inga event. Prova ett annat filter.
           </li>
         )}
         {visible.length > visibleLimit && (
