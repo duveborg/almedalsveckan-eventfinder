@@ -66,7 +66,7 @@ async function main() {
   const client = new OpenAI({ apiKey })
 
   const file = JSON.parse(
-    await readFile('public/events.json', 'utf8'),
+    await readFile('src/data/generated/events.json', 'utf8'),
   ) as EventsFile
   console.log(`[embed] embedding ${file.events.length} events with ${MODEL}`)
 
@@ -89,10 +89,10 @@ async function main() {
 
   const { bytes, scales } = quantize(vectors)
 
-  await mkdir('public', { recursive: true })
-  await writeFile('public/embeddings.bin', bytes)
+  await mkdir('src/data/generated', { recursive: true })
+  await writeFile('src/data/generated/embeddings.bin', bytes)
   await writeFile(
-    'public/embeddings-meta.json',
+    'src/data/generated/embeddings-meta.json',
     JSON.stringify({
       model: MODEL,
       dims: DIMS,
@@ -103,7 +103,9 @@ async function main() {
     }),
   )
   const sizeMb = (bytes.byteLength / 1024 / 1024).toFixed(2)
-  console.log(`[embed] wrote public/embeddings.bin (${sizeMb} MB) and embeddings-meta.json`)
+  console.log(
+    `[embed] wrote src/data/generated/embeddings.bin (${sizeMb} MB) and embeddings-meta.json`,
+  )
 }
 
 main().catch((err) => {

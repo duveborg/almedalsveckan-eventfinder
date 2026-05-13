@@ -4,7 +4,7 @@ import { enrichAll } from './enrich'
 import type { EventsFile, RawEvent } from '../src/data/types'
 
 const RAW_PATH = 'data/events-raw.json'
-const OUT_PATH = 'public/events.json'
+const OUT_PATH = 'src/data/generated/events.json'
 
 async function fileExists(p: string): Promise<boolean> {
   try {
@@ -34,7 +34,7 @@ async function main() {
     count: events.length,
     events,
   }
-  await mkdir('public', { recursive: true })
+  await mkdir('src/data/generated', { recursive: true })
   await writeFile(OUT_PATH, JSON.stringify(out))
   const sizeKb = Math.round(
     Buffer.byteLength(JSON.stringify(out)) / 1024,

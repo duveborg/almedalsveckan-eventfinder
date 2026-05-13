@@ -1,3 +1,6 @@
+import embeddingsMetaUrl from './generated/embeddings-meta.json?url'
+import embeddingsBinUrl from './generated/embeddings.bin?url'
+
 export interface EmbeddingsMeta {
   dims: number
   count: number
@@ -16,8 +19,8 @@ export function loadEmbeddings(): Promise<{
     embedCache = (async () => {
       try {
         const [metaRes, binRes] = await Promise.all([
-          fetch('/embeddings-meta.json'),
-          fetch('/embeddings.bin'),
+          fetch(embeddingsMetaUrl),
+          fetch(embeddingsBinUrl),
         ])
         if (!metaRes.ok || !binRes.ok) return null
         const meta = (await metaRes.json()) as EmbeddingsMeta

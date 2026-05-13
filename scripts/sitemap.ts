@@ -2,7 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import type { EventsFile } from '../src/data/types'
 
 const SITE_URL = 'https://almedalen.app'
-const EVENTS_PATH = 'public/events.json'
+const EVENTS_PATH = 'src/data/generated/events.json'
 const OUT_PATH = 'public/sitemap.xml'
 
 const STATIC_PATHS: Array<{ path: string; priority: string; changefreq: string }> = [
