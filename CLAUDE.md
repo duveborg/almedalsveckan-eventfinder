@@ -4,7 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Almedalen 2026 — a React/TypeScript/Vite SPA for navigating the Almedalsveckan 2026 program. **UI strings are in Swedish.** Tabs: Hitta (now/nearby), Karta (map), Ditt schema (saved), För dig (recommendations), Sök (search), Om.
+Almedalen 2026 — a React/TypeScript/Vite SPA that's a faster, richer way to browse the Almedalsveckan 2026 program than the official site. **UI strings are in Swedish.**
+
+Almedalsveckan is the annual Swedish politics-and-society week in Visby, Gotland (early July). Thousands of public events are held by political parties, NGOs, companies, unions, and media; the official program is large and awkward to navigate, so this app re-presents the same data with better filtering, search, a map, a personal schedule, and embedding-based recommendations.
+
+The whole app is statically built and serves a single snapshot of scraped event data — there is no backend at runtime. Everything users save (schedule) lives in `localStorage`. The data pipeline (scrape → enrich → embed) is run offline by the maintainer.
+
+**Tabs:**
+- **Hitta** (`routes/find.tsx`) — browse events with day/hour filters; "Nu" shows what's on right now, sorted nearest-first using the browser's geolocation.
+- **Karta** (`routes/map.tsx`) — MapLibre GL map of all event venues.
+- **Ditt schema** (`routes/schedule.tsx`) — events the user has saved (Zustand + `persist`).
+- **För dig** (`routes/for-dig.tsx`) — recommendations: builds a centroid from the saved events' OpenAI embeddings and ranks the rest of the program by cosine similarity. Degrades gracefully if embeddings aren't deployed.
+- **Sök** (`routes/search.tsx`) — full-text keyword search via MiniSearch over title/topics/searchText.
+- **Om** (`routes/about.tsx`) — about page + share.
+
+Event detail pages live at `routes/event.tsx`.
 
 ## Commands
 
