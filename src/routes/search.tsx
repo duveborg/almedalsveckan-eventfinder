@@ -19,7 +19,7 @@ export default function SearchRoute() {
   }, [events])
 
   const results = useMemo(
-    () => (events ? keywordSearch(events, query) : []),
+    () => (events && query.trim() ? keywordSearch(events, query) : []),
     [events, query],
   )
 
@@ -37,10 +37,7 @@ export default function SearchRoute() {
         <div className="px-4 pb-3 pt-5">
           <h1 className="text-2xl font-semibold">Sök</h1>
           <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
-            {events.length > 0 &&
-              (query.trim()
-                ? `${results.length} träffar`
-                : `${events.length} event`)}
+            {query.trim() && `${results.length} träffar`}
           </p>
         </div>
         <div className="px-4 pb-3">
@@ -60,7 +57,7 @@ export default function SearchRoute() {
             <EventCard event={e} />
           </li>
         ))}
-        {events.length > 0 && results.length === 0 && (
+        {query.trim() && results.length === 0 && (
           <li className="rounded-lg bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-fg-dim)]">
             Inga träffar. Prova ett annat sökord.
           </li>
