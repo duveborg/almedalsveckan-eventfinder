@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import type { EventsFile } from '../src/data/types'
 
-const SITE_URL = 'https://almedalsveckan-eventfinder.pages.dev'
+const SITE_URL = 'https://almedalen.app'
 const EVENTS_PATH = 'public/events.json'
 const OUT_PATH = 'public/sitemap.xml'
 

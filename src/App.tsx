@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useLocation } from './store/location'
 
 const tabs = [
-  { to: '/find', label: 'Hitta' },
+  { to: '/', label: 'Hitta', end: true },
   { to: '/map', label: 'Karta' },
   { to: '/schedule', label: 'Ditt schema' },
   { to: '/for-dig', label: 'För dig' },
@@ -20,7 +20,7 @@ export default function App() {
   return (
     <div className="flex h-[100svh] flex-col">
       <header className="flex items-center border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2">
-        <Link to="/find" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <img src="/favicon.svg" alt="" className="h-5 w-5" />
           <span className="text-sm font-semibold tracking-tight">Almedalen 2026</span>
           <span className="rounded-full bg-[var(--color-accent)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
@@ -37,6 +37,7 @@ export default function App() {
             <li key={tab.to}>
               <NavLink
                 to={tab.to}
+                end={tab.end}
                 className={({ isActive }) =>
                   `flex flex-col items-start gap-1 py-3 text-xs font-medium transition-colors ${
                     isActive

@@ -179,7 +179,7 @@ export default function ScheduleRoute() {
           <div className="rounded-xl bg-[var(--color-surface)] p-8 text-center">
             <p className="text-sm text-[var(--color-fg-dim)]">
               Inga sparade event ännu. Hitta något i{' '}
-              <Link to="/find" className="text-[var(--color-accent)] underline">
+              <Link to="/" className="text-[var(--color-accent)] underline">
                 Hitta
               </Link>{' '}
               eller{' '}

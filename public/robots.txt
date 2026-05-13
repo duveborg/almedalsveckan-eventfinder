@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://almedalsveckan-eventfinder.pages.dev/sitemap.xml
+Sitemap: https://almedalen.app/sitemap.xml
