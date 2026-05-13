@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-const DEFAULT_TITLE = 'Almedalen 2026 — ett bättre program'
+const DEFAULT_TITLE = 'Almedalen 2026 — hitta dina evenemang'
 
 export function useDocumentTitle(title: string | null | undefined) {
   useEffect(() => {
