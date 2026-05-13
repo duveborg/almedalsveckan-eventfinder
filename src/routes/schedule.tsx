@@ -117,6 +117,16 @@ export default function ScheduleRoute() {
     (s) => !savedIds.includes(s.next.id),
   )
 
+  const routeUrl = useMemo(() => {
+    const points = forDay
+      .filter(
+        (e) => e.location?.latitude != null && e.location?.longitude != null,
+      )
+      .map((e) => `${e.location!.latitude},${e.location!.longitude}`)
+    if (points.length < 2) return null
+    return `https://www.google.com/maps/dir/${points.join('/')}?travelmode=walking`
+  }, [forDay])
+
   return (
     <section className="mx-auto h-full max-w-md overflow-y-auto md:max-w-2xl">
       <header className="border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
@@ -198,6 +208,17 @@ export default function ScheduleRoute() {
           </ul>
         )}
 
+        {routeUrl && (
+          <a
+            href={routeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm font-medium text-[var(--color-fg)] hover:bg-[var(--color-border)]"
+          >
+            Visa dagens rutt i Google Maps
+          </a>
+        )}
+
         {visibleSuggestions.length > 0 && (
           <div className="mt-8">
             <h2 className="mb-3 text-md font-semibold uppercase tracking-wider text-[var(--color-fg-dim)]">
@@ -207,7 +228,7 @@ export default function ScheduleRoute() {
               {visibleSuggestions.map((s) => (
                 <li key={s.for.id + '_' + s.next.id}>
                   <div className="mb-1 px-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
-                    {Math.round(s.gapMin)} min efter <b>{s.for.title}</b>
+                    {Math.round(s.gapMin) === 0 ? 'direkt efter' : `${Math.round(s.gapMin)} min efter`} <span className="text-red-600">{s.for.title}</span>
                     {s.meters != null && ` · ${Math.round(s.meters)} m bort`}
                   </div>
                   <EventCard event={s.next} />

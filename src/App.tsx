@@ -23,6 +23,9 @@ export default function App() {
         <Link to="/find" className="flex items-center gap-2">
           <img src="/favicon.svg" alt="" className="h-5 w-5" />
           <span className="text-sm font-semibold tracking-tight">Almedalen 2026</span>
+          <span className="rounded-full bg-[var(--color-accent)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+            Beta
+          </span>
         </Link>
       </header>
       <main className="min-h-0 flex-1 overflow-hidden">
