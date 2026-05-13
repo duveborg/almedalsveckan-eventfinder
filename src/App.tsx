@@ -31,7 +31,7 @@ export default function App() {
           Sajten är optimerad för mobila enheter
         </span>
       </header>
-      <main className="min-h-0 flex-1 overflow-hidden">
+      <main className="min-h-0 flex-1 overflow-y-auto">
         <Outlet />
       </main>
       <nav className="border-t border-[var(--color-border)] bg-[var(--color-surface)] pt-2 pb-2">

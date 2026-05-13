@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
+import { PageSection } from '../components/PageSection'
 
 export default function AboutRoute() {
   useDocumentTitle('Om')
@@ -29,7 +30,7 @@ export default function AboutRoute() {
   }
 
   return (
-    <section className="mx-auto h-full max-w-md overflow-y-auto md:max-w-2xl">
+    <PageSection>
       <header className="border-b border-[var(--color-border)]">
         <div className="px-4 pb-3 pt-5">
           <h1 className="text-2xl font-semibold">Om</h1>
@@ -94,6 +95,6 @@ export default function AboutRoute() {
           .
         </p>
       </div>
-    </section>
+    </PageSection>
   )
 }

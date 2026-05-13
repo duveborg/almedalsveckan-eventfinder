@@ -6,6 +6,7 @@ import { EventCard } from "../components/EventCard";
 import { useUrlParam, useUrlSet } from "../lib/urlState";
 import { now } from "../lib/now";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
+import { PageSection } from "../components/PageSection";
 
 function topTopics(events: EnrichedEvent[], n: number): string[] {
   const counts = new Map<string, number>();
@@ -237,7 +238,7 @@ export default function FindRoute() {
     );
 
   return (
-    <section className="mx-auto h-full max-w-md overflow-y-auto md:max-w-2xl">
+    <PageSection>
       <header className="border-b border-[var(--color-border)]">
         <div className="px-4 pb-3 pt-5">
           <h1 className="text-2xl font-semibold">Hitta evenemang</h1>
@@ -334,7 +335,7 @@ export default function FindRoute() {
                 </button>
               )}
             </div>
-            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
+            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs md:mx-0 md:flex-wrap md:overflow-x-visible md:px-0">
               {partyChips.map((p) => {
                 const active = activeParties.has(p);
                 return (
@@ -369,7 +370,7 @@ export default function FindRoute() {
                 </button>
               )}
             </div>
-            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
+            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs md:mx-0 md:flex-wrap md:overflow-x-visible md:px-0">
               {topicChips.map((t) => {
               const active = activeTopics.has(t);
               return (
@@ -404,7 +405,7 @@ export default function FindRoute() {
                 </button>
               )}
             </div>
-            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
+            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs md:mx-0 md:flex-wrap md:overflow-x-visible md:px-0">
               {eventTypeChips.map((t) => {
                 const active = activeEventTypes.has(t);
                 return (
@@ -439,7 +440,7 @@ export default function FindRoute() {
                 </button>
               )}
             </div>
-            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs">
+            <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs md:mx-0 md:flex-wrap md:overflow-x-visible md:px-0">
               {organizationChips.map((o) => {
                 const active = activeOrganizations.has(o);
                 return (
@@ -502,6 +503,6 @@ export default function FindRoute() {
           </li>
         )}
       </ul>
-    </section>
+    </PageSection>
   );
 }

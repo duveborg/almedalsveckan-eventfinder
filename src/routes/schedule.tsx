@@ -9,6 +9,7 @@ import { haversineMeters } from '../lib/distance'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
 import { downloadIcs } from '../lib/ics'
 import { overlaps } from '../lib/overlap'
+import { PageSection } from '../components/PageSection'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån' },
@@ -128,7 +129,7 @@ export default function ScheduleRoute() {
   }, [forDay])
 
   return (
-    <section className="mx-auto h-full max-w-md overflow-y-auto md:max-w-2xl">
+    <PageSection>
       <header className="border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
         <div className="flex items-center justify-between px-4 pb-3 pt-5">
           <h1 className="text-2xl font-semibold">Ditt schema</h1>
@@ -243,6 +244,6 @@ export default function ScheduleRoute() {
           webbläsardatan försvinner det.
         </p>
       </div>
-    </section>
+    </PageSection>
   )
 }

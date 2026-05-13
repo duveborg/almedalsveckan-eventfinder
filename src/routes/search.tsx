@@ -5,6 +5,7 @@ import { keywordSearch } from '../data/search'
 import { EventCard } from '../components/EventCard'
 import { useUrlParam } from '../lib/urlState'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
+import { PageSection } from '../components/PageSection'
 
 export default function SearchRoute() {
   useDocumentTitle('Sök')
@@ -21,7 +22,7 @@ export default function SearchRoute() {
   )
 
   return (
-    <section className="mx-auto h-full max-w-md overflow-y-auto md:max-w-2xl">
+    <PageSection>
       <header className="border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
         <div className="px-4 pb-3 pt-5">
           <h1 className="text-2xl font-semibold">Sök</h1>
@@ -60,6 +61,6 @@ export default function SearchRoute() {
           </li>
         )}
       </ul>
-    </section>
+    </PageSection>
   )
 }

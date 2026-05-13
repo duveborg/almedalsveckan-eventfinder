@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { loadEvents } from "../data/load";
 import { loadEmbeddings, cosineInt8 } from "../data/galaxy";
@@ -11,6 +11,7 @@ import { hasFood } from "../data/food";
 import { now } from "../lib/now";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { downloadIcs } from "../lib/ics";
+import { PageSection } from "../components/PageSection";
 
 interface SimilarHit {
   id: string;
@@ -105,11 +106,10 @@ export default function EventDetailRoute() {
   const toggle = useSchedule((s) => s.toggle);
   const userCoords = useLocation((s) => s.coords);
   const similar = useSimilar(eventId);
-  const scrollRef = useRef<HTMLElement>(null);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0 });
+    document.querySelector("main")?.scrollTo({ top: 0 });
   }, [eventId]);
 
   const event = useMemo(
@@ -213,10 +213,7 @@ export default function EventDetailRoute() {
     : null;
 
   return (
-    <article
-      ref={scrollRef}
-      className="mx-auto h-full max-w-md overflow-y-auto p-4 pb-16 md:max-w-2xl"
-    >
+    <PageSection as="article" className="p-4 pb-16">
       <button
         type="button"
         onClick={goBack}
@@ -598,6 +595,6 @@ export default function EventDetailRoute() {
           </ul>
         </section>
       )}
-    </article>
+    </PageSection>
   );
 }

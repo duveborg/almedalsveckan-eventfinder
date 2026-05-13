@@ -6,6 +6,7 @@ import { useSchedule } from '../store/schedule'
 import { EventCard } from '../components/EventCard'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
 import { now } from '../lib/now'
+import { PageSection } from '../components/PageSection'
 
 const TOP_N = 30
 
@@ -56,7 +57,7 @@ export default function ForDigRoute() {
   }, [ranked, events])
 
   return (
-    <section className="mx-auto h-full max-w-md overflow-y-auto md:max-w-2xl">
+    <PageSection>
       <header className="border-b border-[var(--color-border)] px-4 pb-3 pt-5">
         <h1 className="text-2xl font-semibold">Rekommendationer för dig</h1>
         <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
@@ -91,6 +92,6 @@ export default function ForDigRoute() {
           </ul>
         )}
       </div>
-    </section>
+    </PageSection>
   )
 }
