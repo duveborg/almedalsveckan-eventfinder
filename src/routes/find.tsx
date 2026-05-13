@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { loadEvents } from "../data/load";
+import { getEventsSync, loadEvents } from "../data/load";
 import type { EnrichedEvent } from "../data/types";
 import { hasFood } from "../data/food";
 import { EventCard } from "../components/EventCard";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useUrlParam, useUrlSet } from "../lib/urlState";
 import { now } from "../lib/now";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
@@ -87,6 +88,12 @@ function chosenWindow(
   actualNow: Date,
 ): { start: Date; end: Date } {
   const t = actualNow.getTime();
+  if (selectedDate === "all") {
+    return {
+      start: new Date(WEEK_START_MS),
+      end: new Date(WEEK_END_MS),
+    };
+  }
   if (selectedDate === null) {
     const base =
       t >= WEEK_START_MS && t <= WEEK_END_MS
@@ -105,7 +112,7 @@ function chosenWindow(
 
 export default function FindRoute() {
   useDocumentTitle("Hitta evenemang");
-  const [events, setEvents] = useState<EnrichedEvent[]>([]);
+  const [events, setEvents] = useState<EnrichedEvent[] | null>(() => getEventsSync());
   const [error, setError] = useState<string | null>(null);
   const [dateParam, setDateParam] = useUrlParam("date", "");
   const [hourParam, setHourParam] = useUrlParam("h", String(HOUR_MIN));
@@ -117,6 +124,7 @@ export default function FindRoute() {
     useUrlSet("organizations");
   const [activeParties, setActiveParties] = useUrlSet("parties");
   const [actualNow, setActualNow] = useState(now());
+  const [visibleLimit, setVisibleLimit] = useState(50);
 
   const selectedDate: string | null = dateParam || null;
   const hourStart = Number(hourParam) || HOUR_MIN;
@@ -158,15 +166,29 @@ export default function FindRoute() {
   };
 
   useEffect(() => {
+    if (events) return;
     loadEvents()
       .then(setEvents)
       .catch((e) => setError(String(e)));
-  }, []);
+  }, [events]);
 
   useEffect(() => {
     const id = setInterval(() => setActualNow(now()), 60_000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    setVisibleLimit(50);
+  }, [
+    selectedDate,
+    hourStart,
+    hourEnd,
+    foodOnly,
+    activeTopics,
+    activeEventTypes,
+    activeOrganizations,
+    activeParties,
+  ]);
 
   const { start: cursor, end: cursorEnd } = chosenWindow(
     selectedDate,
@@ -175,15 +197,19 @@ export default function FindRoute() {
     actualNow,
   );
 
-  const topicChips = useMemo(() => topTopics(events, 20), [events]);
-  const eventTypeChips = useMemo(() => topEventTypes(events, 20), [events]);
-  const organizationChips = useMemo(
-    () => topOrganizations(events, 40),
+  const topicChips = useMemo(() => topTopics(events ?? [], 20), [events]);
+  const eventTypeChips = useMemo(
+    () => topEventTypes(events ?? [], 20),
     [events],
   );
-  const partyChips = useMemo(() => topParties(events, 20), [events]);
+  const organizationChips = useMemo(
+    () => topOrganizations(events ?? [], 40),
+    [events],
+  );
+  const partyChips = useMemo(() => topParties(events ?? [], 20), [events]);
 
   const visible = useMemo(() => {
+    if (!events) return [];
     const startMs = cursor.getTime();
     const endMs = cursorEnd.getTime();
     return events
@@ -237,6 +263,14 @@ export default function FindRoute() {
       </div>
     );
 
+  if (!events) {
+    return (
+      <PageSection>
+        <LoadingSpinner message="Laddar evenemang…" />
+      </PageSection>
+    );
+  }
+
   return (
     <PageSection>
       <header className="border-b border-[var(--color-border)]">
@@ -244,12 +278,14 @@ export default function FindRoute() {
           <h1 className="text-2xl font-semibold">Hitta evenemang</h1>
           <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
             {visible.length} event {" · "}
-            {selectedDate === null
-              ? actualNow.getTime() >= WEEK_START_MS &&
-                actualNow.getTime() <= WEEK_END_MS
-                ? "just nu"
-                : "första dagen"
-              : `${WEEK_DAYS.find((d) => d.date === selectedDate)?.label} ${String(hourStart).padStart(2, "0")}:00–${String(hourEnd).padStart(2, "0")}:00`}
+            {selectedDate === "all"
+              ? "hela veckan"
+              : selectedDate === null
+                ? actualNow.getTime() >= WEEK_START_MS &&
+                  actualNow.getTime() <= WEEK_END_MS
+                  ? "just nu"
+                  : "första dagen"
+                : `${WEEK_DAYS.find((d) => d.date === selectedDate)?.label} ${String(hourStart).padStart(2, "0")}:00–${String(hourEnd).padStart(2, "0")}:00`}
           </p>
         </div>
         <div className="flex gap-1 overflow-x-auto px-4 pb-3 text-xs">
@@ -278,8 +314,19 @@ export default function FindRoute() {
               {d.label}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => setSelectedDate("all")}
+            className={`rounded-full px-3 py-1.5 whitespace-nowrap ${
+              selectedDate === "all"
+                ? "bg-[var(--color-accent)] text-white"
+                : "bg-[var(--color-surface)] text-[var(--color-fg-dim)]"
+            }`}
+          >
+            Alla
+          </button>
         </div>
-        {selectedDate !== null && (
+        {selectedDate !== null && selectedDate !== "all" && (
           <div className="px-4 pb-3">
             <div className="mb-1 flex items-baseline justify-between text-[11px]">
               <span className="text-[var(--color-fg-dim)]">Tidsspann</span>
@@ -487,7 +534,7 @@ export default function FindRoute() {
         </div>
       </header>
       <ul className="space-y-2 p-4">
-        {visible.slice(0, 50).map((e) => (
+        {visible.slice(0, visibleLimit).map((e) => (
           <li key={e.id}>
             <EventCard event={e} />
           </li>
@@ -497,9 +544,15 @@ export default function FindRoute() {
             Inga event i fönstret. Prova ett annat tidsspann.
           </li>
         )}
-        {visible.length > 50 && (
-          <li className="pt-2 text-center text-xs text-[var(--color-fg-dim)]">
-            +{visible.length - 50} fler …
+        {visible.length > visibleLimit && (
+          <li className="pt-2 text-center">
+            <button
+              type="button"
+              onClick={() => setVisibleLimit((n) => n + 50)}
+              className="rounded-full bg-[var(--color-surface)] px-4 py-2 text-xs text-[var(--color-fg)] hover:bg-[var(--color-border)]"
+            >
+              Visa fler ({visible.length - visibleLimit} kvar)
+            </button>
           </li>
         )}
       </ul>

@@ -1,25 +1,35 @@
 import { useEffect, useMemo, useState } from 'react'
-import { loadEvents } from '../data/load'
+import { getEventsSync, loadEvents } from '../data/load'
 import type { EnrichedEvent } from '../data/types'
 import { keywordSearch } from '../data/search'
 import { EventCard } from '../components/EventCard'
+import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useUrlParam } from '../lib/urlState'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
 import { PageSection } from '../components/PageSection'
 
 export default function SearchRoute() {
   useDocumentTitle('Sök')
-  const [events, setEvents] = useState<EnrichedEvent[]>([])
+  const [events, setEvents] = useState<EnrichedEvent[] | null>(() => getEventsSync())
   const [query, setQuery] = useUrlParam('q', '')
 
   useEffect(() => {
+    if (events) return
     loadEvents().then(setEvents)
-  }, [])
+  }, [events])
 
   const results = useMemo(
-    () => keywordSearch(events, query),
+    () => (events ? keywordSearch(events, query) : []),
     [events, query],
   )
+
+  if (!events) {
+    return (
+      <PageSection>
+        <LoadingSpinner message="Laddar evenemang…" />
+      </PageSection>
+    )
+  }
 
   return (
     <PageSection>

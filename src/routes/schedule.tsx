@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { loadEvents } from '../data/load'
+import { getEventsSync, loadEvents } from '../data/load'
 import type { EnrichedEvent } from '../data/types'
 import { useSchedule } from '../store/schedule'
 import { EventCard } from '../components/EventCard'
+import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useUrlParam } from '../lib/urlState'
 import { haversineMeters } from '../lib/distance'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
@@ -73,16 +74,17 @@ function suggestNext(
 
 export default function ScheduleRoute() {
   useDocumentTitle('Ditt schema')
-  const [events, setEvents] = useState<EnrichedEvent[]>([])
+  const [events, setEvents] = useState<EnrichedEvent[] | null>(() => getEventsSync())
   const [day, setDay] = useUrlParam('day', WEEK_DAYS[0].date)
   const savedIds = useSchedule((s) => s.savedIds)
 
   useEffect(() => {
+    if (events) return
     loadEvents().then(setEvents)
-  }, [])
+  }, [events])
 
   const savedEvents = useMemo(
-    () => events.filter((e) => savedIds.includes(e.id)),
+    () => (events ? events.filter((e) => savedIds.includes(e.id)) : []),
     [events, savedIds],
   )
 
@@ -111,7 +113,7 @@ export default function ScheduleRoute() {
   }, [forDay])
 
   const suggestions = useMemo(
-    () => suggestNext(savedEvents, events, day, savedIds),
+    () => (events ? suggestNext(savedEvents, events, day, savedIds) : []),
     [savedEvents, events, day, savedIds],
   )
   const visibleSuggestions = suggestions.filter(
@@ -127,6 +129,14 @@ export default function ScheduleRoute() {
     if (points.length < 2) return null
     return `https://www.google.com/maps/dir/${points.join('/')}?travelmode=walking`
   }, [forDay])
+
+  if (!events) {
+    return (
+      <PageSection>
+        <LoadingSpinner message="Laddar evenemang…" />
+      </PageSection>
+    )
+  }
 
   return (
     <PageSection>

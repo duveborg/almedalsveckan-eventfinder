@@ -5,10 +5,11 @@ import maplibregl, {
   type StyleSpecification,
 } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { loadEvents } from '../data/load'
+import { getEventsSync, loadEvents } from '../data/load'
 import type { EnrichedEvent } from '../data/types'
 import { hasFood } from '../data/food'
 import { EventCard } from '../components/EventCard'
+import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useUrlParam } from '../lib/urlState'
 import { now as currentNow } from '../lib/now'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
@@ -90,7 +91,7 @@ export default function MapRoute() {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
 
-  const [events, setEvents] = useState<EnrichedEvent[]>([])
+  const [events, setEvents] = useState<EnrichedEvent[] | null>(() => getEventsSync())
   const [dayParam, setDayParam] = useUrlParam('day', '')
   const [foodParam, setFoodParam] = useUrlParam('food', '0')
   const [focusedIds, setFocusedIds] = useState<string[]>([])
@@ -102,8 +103,9 @@ export default function MapRoute() {
   const setFoodOnly = (v: boolean) => setFoodParam(v ? '1' : '0')
 
   useEffect(() => {
+    if (events) return
     loadEvents().then(setEvents)
-  }, [])
+  }, [events])
 
   useEffect(() => {
     const id = setInterval(() => setNow(currentNow()), 30_000)
@@ -112,7 +114,7 @@ export default function MapRoute() {
 
   const filtered = useMemo(
     () =>
-      events.filter((e) => {
+      (events ?? []).filter((e) => {
         if (selectedDay && e.date !== selectedDay) return false
         if (foodOnly && !hasFood(e)) return false
         return true
@@ -284,13 +286,18 @@ export default function MapRoute() {
   }, [filtered, now])
 
   const focusedEvents = useMemo(
-    () => events.filter((e) => focusedIds.includes(e.id)),
+    () => (events ?? []).filter((e) => focusedIds.includes(e.id)),
     [events, focusedIds],
   )
 
   return (
     <section className="relative h-full">
       <div ref={containerRef} className="h-full w-full" />
+      {!events && (
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[var(--color-bg)]/70 backdrop-blur-sm">
+          <LoadingSpinner message="Laddar evenemang…" />
+        </div>
+      )}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col items-center gap-2 p-3">
         <div className="pointer-events-auto flex gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)]/95 p-1 text-xs backdrop-blur">
           <button

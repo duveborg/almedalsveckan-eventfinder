@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { loadEvents } from "../data/load";
+import { getEventsSync, loadEvents } from "../data/load";
 import { loadEmbeddings, cosineInt8 } from "../data/galaxy";
 import type { EnrichedEvent } from "../data/types";
 import { EventCard } from "../components/EventCard";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useSchedule } from "../store/schedule";
 import { useLocation } from "../store/location";
 import { haversineMeters, formatDistance } from "../lib/distance";
@@ -99,7 +100,7 @@ export default function EventDetailRoute() {
   const { id } = useParams();
   const navigate = useNavigate();
   const eventId = id ? decodeURIComponent(id) : undefined;
-  const [events, setEvents] = useState<EnrichedEvent[]>([]);
+  const [events, setEvents] = useState<EnrichedEvent[] | null>(() => getEventsSync());
   const saved = useSchedule((s) =>
     eventId ? s.savedIds.includes(eventId) : false,
   );
@@ -113,7 +114,7 @@ export default function EventDetailRoute() {
   }, [eventId]);
 
   const event = useMemo(
-    () => events.find((e) => e.id === eventId) ?? null,
+    () => events?.find((e) => e.id === eventId) ?? null,
     [events, eventId],
   );
   useDocumentTitle(event?.title ?? null);
@@ -148,11 +149,12 @@ export default function EventDetailRoute() {
   };
 
   useEffect(() => {
+    if (events) return;
     loadEvents().then(setEvents);
-  }, []);
+  }, [events]);
 
   const similarEvents = useMemo(() => {
-    if (!similar) return null;
+    if (!similar || !events) return null;
     const byId = new Map(events.map((e) => [e.id, e]));
     const cutoff = now().getTime();
     return similar
@@ -163,9 +165,18 @@ export default function EventDetailRoute() {
       .slice(0, 6);
   }, [similar, events]);
 
+  if (!events) {
+    return (
+      <PageSection>
+        <LoadingSpinner message="Laddar evenemang…" />
+      </PageSection>
+    );
+  }
   if (!event)
     return (
-      <div className="p-6 text-sm text-[var(--color-fg-dim)]">Laddar …</div>
+      <div className="p-6 text-sm text-[var(--color-fg-dim)]">
+        Eventet hittades inte.
+      </div>
     );
 
   const speakers = event.persons ?? [];

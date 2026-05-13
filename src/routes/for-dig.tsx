@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { loadEvents } from '../data/load'
+import { getEventsSync, loadEvents } from '../data/load'
 import { loadEmbeddings, rankByCentroid, type Ranked } from '../data/galaxy'
 import type { EnrichedEvent } from '../data/types'
 import { useSchedule } from '../store/schedule'
 import { EventCard } from '../components/EventCard'
+import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
 import { now } from '../lib/now'
 import { PageSection } from '../components/PageSection'
@@ -12,14 +13,15 @@ const TOP_N = 30
 
 export default function ForDigRoute() {
   useDocumentTitle('För dig')
-  const [events, setEvents] = useState<EnrichedEvent[]>([])
+  const [events, setEvents] = useState<EnrichedEvent[] | null>(() => getEventsSync())
   const [ranked, setRanked] = useState<Ranked[] | null>(null)
   const [embeddingsMissing, setEmbeddingsMissing] = useState(false)
   const savedIds = useSchedule((s) => s.savedIds)
 
   useEffect(() => {
+    if (events) return
     loadEvents().then(setEvents)
-  }, [])
+  }, [events])
 
   useEffect(() => {
     if (savedIds.length === 0) {
@@ -42,7 +44,7 @@ export default function ForDigRoute() {
   }, [savedIds])
 
   const items = useMemo(() => {
-    if (!ranked) return []
+    if (!ranked || !events) return []
     const byId = new Map(events.map((e) => [e.id, e]))
     const cutoff = now().getTime()
     const out: { event: EnrichedEvent; score: number }[] = []
@@ -55,6 +57,14 @@ export default function ForDigRoute() {
     }
     return out
   }, [ranked, events])
+
+  if (!events) {
+    return (
+      <PageSection>
+        <LoadingSpinner message="Laddar evenemang…" />
+      </PageSection>
+    )
+  }
 
   return (
     <PageSection>
@@ -77,7 +87,7 @@ export default function ForDigRoute() {
             Förslagen kräver embeddings. Kör <code>npm run embed</code>.
           </div>
         ) : ranked === null ? (
-          <div className="text-sm text-[var(--color-fg-dim)]">Laddar …</div>
+          <LoadingSpinner message="Räknar fram förslag…" />
         ) : items.length === 0 ? (
           <div className="rounded-xl bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-fg-dim)]">
             Inga förslag att visa.
