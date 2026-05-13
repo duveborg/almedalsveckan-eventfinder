@@ -88,7 +88,7 @@ export function EventCard({ event }: Props) {
         )}
 
         {conflict && (
-          <div className="mt-2 line-clamp-1 text-[11px] font-semibold uppercase tracking-wider">
+          <div className="mt-2 line-clamp-3 text-[11px] font-semibold uppercase tracking-wider">
             ⚠️ Samtidigt som{" "}
             <span className="text-red-600">{conflict.title}</span>{" "}
             <span className="text-[var(--color-fg-dim)]">
