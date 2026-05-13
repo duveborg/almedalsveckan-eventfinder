@@ -8,7 +8,7 @@ export default function AboutRoute() {
   const handleShare = async () => {
     const shareData = {
       title: 'Almedalen 2026 — ett bättre program',
-      text: 'Hitta event i Almedalen 2026 — karta, schema, sök och vad som händer just nu.',
+      text: 'Hitta event i Almedalen 2026 — karta, schema, rekommendationer, sök och vad som händer just nu.',
       url: window.location.origin,
     }
     if (navigator.share) {
