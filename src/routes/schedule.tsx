@@ -8,6 +8,7 @@ import { useUrlParam } from '../lib/urlState'
 import { haversineMeters } from '../lib/distance'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
 import { downloadIcs } from '../lib/ics'
+import { overlaps } from '../lib/overlap'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån' },
@@ -16,15 +17,6 @@ const WEEK_DAYS = [
   { date: '2026-06-25', label: 'Tor' },
   { date: '2026-06-26', label: 'Fre' },
 ]
-
-function overlaps(a: EnrichedEvent, b: EnrichedEvent): boolean {
-  if (a.id === b.id || a.date !== b.date) return false
-  const as = new Date(a.startISO).getTime()
-  const ae = new Date(a.endISO).getTime()
-  const bs = new Date(b.startISO).getTime()
-  const be = new Date(b.endISO).getTime()
-  return as < be && bs < ae
-}
 
 function suggestNext(
   saved: EnrichedEvent[],
