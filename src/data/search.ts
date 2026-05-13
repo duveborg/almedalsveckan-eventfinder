@@ -1,10 +1,10 @@
 import MiniSearch from 'minisearch'
 import type { EnrichedEvent } from './types'
 
-let indexCache: MiniSearch<EnrichedEvent> | null = null
+let indexCache: { events: EnrichedEvent[]; ms: MiniSearch<EnrichedEvent> } | null = null
 
 export function buildIndex(events: EnrichedEvent[]): MiniSearch<EnrichedEvent> {
-  if (indexCache) return indexCache
+  if (indexCache && indexCache.events === events) return indexCache.ms
   const ms = new MiniSearch<EnrichedEvent>({
     fields: ['title', 'searchText', 'topic', 'topic2'],
     storeFields: ['id'],
@@ -18,7 +18,7 @@ export function buildIndex(events: EnrichedEvent[]): MiniSearch<EnrichedEvent> {
       (event[field as keyof EnrichedEvent] as string) ?? '',
   })
   ms.addAll(events)
-  indexCache = ms
+  indexCache = { events, ms }
   return ms
 }
 
