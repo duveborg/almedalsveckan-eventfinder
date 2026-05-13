@@ -30,6 +30,7 @@ function suggestNext(
     gapMin: number
     meters: number | null
   }[] = []
+  const savedForDay = saved.filter((e) => e.date === date)
   for (const s of saved) {
     if (s.date !== date) continue
     const sEnd = new Date(s.endISO).getTime()
@@ -46,6 +47,7 @@ function suggestNext(
         return { e, gapMin }
       })
       .filter((c) => c.gapMin >= 0 && c.gapMin <= 30)
+      .filter((c) => !savedForDay.some((sv) => overlaps(sv, c.e)))
     for (const c of candidates.slice(0, 8)) {
       let meters: number | null = null
       if (
