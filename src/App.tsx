@@ -19,7 +19,7 @@ export default function App() {
 
   return (
     <div className="flex h-[100svh] flex-col">
-      <header className="flex items-center border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2">
+      <header className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2">
         <Link to="/" className="flex items-center gap-2">
           <img src="/favicon.svg" alt="" className="h-5 w-5" />
           <span className="text-sm font-semibold tracking-tight">Almedalen 2026</span>
@@ -27,6 +27,9 @@ export default function App() {
             Beta
           </span>
         </Link>
+        <span className="hidden text-[11px] italic text-[var(--color-fg-dim)] lg:inline">
+          Sajten är optimerad för mobila enheter
+        </span>
       </header>
       <main className="min-h-0 flex-1 overflow-hidden">
         <Outlet />
