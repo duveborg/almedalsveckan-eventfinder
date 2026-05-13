@@ -104,8 +104,6 @@ export default function EventDetailRoute() {
   );
   const toggle = useSchedule((s) => s.toggle);
   const userCoords = useLocation((s) => s.coords);
-  const locationStatus = useLocation((s) => s.status);
-  const requestLocation = useLocation((s) => s.request);
   const similar = useSimilar(eventId);
   const scrollRef = useRef<HTMLElement>(null);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
@@ -206,6 +204,13 @@ export default function EventDetailRoute() {
           { lat: eventLat, lng: eventLng },
         )
       : null;
+  const mapUrl = event.location?.name
+    ? `https://www.google.com/maps/search/?api=1&query=${
+        hasCoords
+          ? `${eventLat},${eventLng}`
+          : encodeURIComponent(`${event.location.name}, Visby`)
+      }`
+    : null;
 
   return (
     <article
@@ -219,26 +224,13 @@ export default function EventDetailRoute() {
       >
         ← Tillbaka
       </button>
-      <header className="mb-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-        <div className="mb-2 flex items-start justify-between gap-3">
-          <h1 className="text-xl font-semibold leading-tight text-[var(--color-fg)]">
-            {event.title}
-          </h1>
-          <button
-            type="button"
-            onClick={() => toggle(event.id)}
-            aria-label={saved ? "Ta bort från schema" : "Spara till schema"}
-            className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xl ${
-              saved
-                ? "bg-[var(--color-accent)] text-white"
-                : "bg-[var(--color-bg)] text-[var(--color-fg-dim)]"
-            }`}
-          >
-            {saved ? "★" : "☆"}
-          </button>
-        </div>
+      <header className="mb-4 space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+        <h1 className="text-xl font-semibold leading-tight text-[var(--color-fg)]">
+          {event.title}
+        </h1>
+
         {event.parties.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1">
             {event.parties.map((p) => (
               <Link
                 key={p}
@@ -250,62 +242,29 @@ export default function EventDetailRoute() {
             ))}
           </div>
         )}
-        <div className="text-xs text-[var(--color-fg-dim)]">
-          {event.weekDayName} {event.shortDate} · {event.startTime}–
-          {event.endTime}
-          {duration && ` · ${duration}`}
+
+        <div className="space-y-1 text-xs text-[var(--color-fg-dim)]">
+          <div>
+          📅 {event.weekDayName} {event.shortDate} · {event.startTime}–
+            {event.endTime}
+            {duration && ` · ${duration}`}
+          </div>
+          {metaLine && <div>ℹ️ {metaLine}</div>}
+          {event.location?.name && (
+            <div>
+              📍 {event.location.name}
+              {event.location.description && (
+                <span> · {event.location.description}</span>
+              )}
+              {distanceMeters != null && (
+                <span> · {formatDistance(distanceMeters)}</span>
+              )}
+            </div>
+          )}
         </div>
 
-        {metaLine && (
-          <div className="mt-1 text-xs text-[var(--color-fg-dim)]">
-            {metaLine}
-          </div>
-        )}
-        {event.location?.name && (
-          <a
-            href={`https://www.google.com/maps/search/?api=1&query=${
-              event.location.latitude != null &&
-              event.location.longitude != null
-                ? `${event.location.latitude},${event.location.longitude}`
-                : encodeURIComponent(`${event.location.name}, Visby`)
-            }`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-1 inline-block text-xs text-[var(--color-accent)] underline-offset-2 hover:underline"
-          >
-            📍 {event.location.name} - hitta hit!
-          </a>
-        )}
-        {event.location?.description && (
-          <div className="mt-0.5 text-xs text-[var(--color-fg-dim)]">
-            {event.location.description}
-          </div>
-        )}
-        {hasCoords && (
-          <div className="mt-1 text-xs text-[var(--color-fg-dim)]">
-            {distanceMeters != null ? (
-              <span>📏 {formatDistance(distanceMeters)}</span>
-            ) : locationStatus === "requesting" ? (
-              <span>📏 Hämtar din plats …</span>
-            ) : locationStatus === "denied" ? (
-              <span>
-                📏 Plats nekad – tillåt i webbläsaren för att se avstånd
-              </span>
-            ) : locationStatus === "unsupported" ? (
-              <span>📏 Plats stöds inte i denna webbläsare</span>
-            ) : (
-              <button
-                type="button"
-                onClick={requestLocation}
-                className="text-[var(--color-accent)] underline-offset-2 hover:underline"
-              >
-                📏 Visa avstånd från mig
-              </button>
-            )}
-          </div>
-        )}
-        {event.topics.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1">
+        {(event.topics.length > 0 || foodServed) && (
+          <div className="flex flex-wrap items-center gap-1">
             {event.topics.map((t) => (
               <Link
                 key={t}
@@ -315,30 +274,61 @@ export default function EventDetailRoute() {
                 {t}
               </Link>
             ))}
-          </div>
-        )}
-        {foodServed && (
-          <div className="mt-3 text-xs">
-            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-[var(--color-accent)]">
-              🍽 Mat serveras
-            </span>
+            {foodServed && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-[10px] text-[var(--color-accent)]">
+                🍽 Mat serveras
+              </span>
+            )}
           </div>
         )}
 
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+        <div className="space-y-1.5 pt-1">
+          <button
+            type="button"
+            onClick={() => toggle(event.id)}
+            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium ${
+              saved
+                ? "bg-[var(--color-accent)] text-white"
+                : "bg-[var(--color-bg)] text-[var(--color-fg)] hover:bg-[var(--color-accent)]/10"
+            }`}
+          >
+            <span className="w-5 text-base" aria-hidden>
+              {saved ? "★" : "☆"}
+            </span>
+            {saved ? "Sparat i ditt schema" : "Spara i ditt schema"}
+          </button>
+          {mapUrl && (
+            <a
+              href={mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center gap-3 rounded-lg bg-[var(--color-bg)] px-3 py-2.5 text-left text-sm font-medium text-[var(--color-fg)] hover:bg-[var(--color-accent)]/10"
+            >
+              <span className="w-5 text-base" aria-hidden>
+                🗺️
+              </span>
+              Hitta hit
+            </a>
+          )}
           <button
             type="button"
             onClick={() => downloadIcs([event], icsFilename(event.title))}
-            className="text-[var(--color-accent)] underline-offset-2 hover:underline"
+            className="flex w-full items-center gap-3 rounded-lg bg-[var(--color-bg)] px-3 py-2.5 text-left text-sm font-medium text-[var(--color-fg)] hover:bg-[var(--color-accent)]/10"
           >
-            📅 Lägg till i kalender
+            <span className="w-5 text-base" aria-hidden>
+              📅
+            </span>
+            Exportera till kalender
           </button>
           <button
             type="button"
             onClick={share}
-            className="text-[var(--color-accent)] underline-offset-2 hover:underline"
+            className="flex w-full items-center gap-3 rounded-lg bg-[var(--color-bg)] px-3 py-2.5 text-left text-sm font-medium text-[var(--color-fg)] hover:bg-[var(--color-accent)]/10"
           >
-            {shareStatus === "copied" ? "✓ Länk kopierad" : "🔗 Dela"}
+            <span className="w-5 text-base" aria-hidden>
+              {shareStatus === "copied" ? "✓" : "🔗"}
+            </span>
+            {shareStatus === "copied" ? "Länk kopierad" : "Dela länk"}
           </button>
         </div>
       </header>
