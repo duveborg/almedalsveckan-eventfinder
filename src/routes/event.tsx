@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { loadEvents } from "../data/load";
 import { loadEmbeddings, cosineInt8 } from "../data/galaxy";
@@ -108,6 +108,7 @@ export default function EventDetailRoute() {
   const requestLocation = useLocation((s) => s.request);
   const similar = useSimilar(eventId);
   const scrollRef = useRef<HTMLElement>(null);
+  const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 });
@@ -118,6 +119,27 @@ export default function EventDetailRoute() {
     [events, eventId],
   );
   useDocumentTitle(event?.title ?? null);
+
+  const share = useCallback(async () => {
+    if (!event) return;
+    const url = window.location.href;
+    const shareData = { title: event.title, url };
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        if ((err as DOMException)?.name === "AbortError") return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareStatus("copied");
+      setTimeout(() => setShareStatus("idle"), 2000);
+    } catch {
+      window.prompt("Kopiera länk:", url);
+    }
+  }, [event]);
 
   const goBack = () => {
     if (window.history.state && window.history.state.idx > 0) {
@@ -303,13 +325,22 @@ export default function EventDetailRoute() {
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={() => downloadIcs([event], icsFilename(event.title))}
-          className="mt-3 text-xs text-[var(--color-accent)] underline-offset-2 hover:underline"
-        >
-          📅 Lägg till i kalender
-        </button>
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+          <button
+            type="button"
+            onClick={() => downloadIcs([event], icsFilename(event.title))}
+            className="text-[var(--color-accent)] underline-offset-2 hover:underline"
+          >
+            📅 Lägg till i kalender
+          </button>
+          <button
+            type="button"
+            onClick={share}
+            className="text-[var(--color-accent)] underline-offset-2 hover:underline"
+          >
+            {shareStatus === "copied" ? "✓ Länk kopierad" : "🔗 Dela"}
+          </button>
+        </div>
       </header>
 
       {hasDigital && (
