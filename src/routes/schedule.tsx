@@ -125,8 +125,8 @@ export default function ScheduleRoute() {
     )
   }
 
-  const handleImport = () => {
-    const added = bulkAdd(incomingEvents.map((e) => e.id))
+  const handleImport = (ids: string[]) => {
+    const added = bulkAdd(ids)
     setImportedCount(added)
     clearImportParam()
     setTimeout(() => setImportedCount(null), 3000)
@@ -291,56 +291,13 @@ export default function ScheduleRoute() {
                 </div>
               </>
             ) : (
-              <>
-                <h2 className="text-sm font-semibold">
-                  Schema från någon annan — {incomingEvents.length} event
-                </h2>
-                <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
-                  {[
-                    ...new Set(
-                      incomingEvents.map(
-                        (e) => DAY_LABEL_BY_DATE[e.date] ?? e.date,
-                      ),
-                    ),
-                  ].join(', ')}
-                </p>
-                <ul className="mt-3 space-y-1.5">
-                  {incomingEvents.slice(0, 12).map((e) => (
-                    <li key={e.id} className="flex items-baseline gap-2 text-xs">
-                      <span className="w-14 shrink-0 text-[var(--color-fg-dim)]">
-                        {DAY_LABEL_BY_DATE[e.date] ?? ''} {formatTime(e.startISO)}
-                      </span>
-                      <span className="flex-1 truncate">{e.title}</span>
-                      {savedIds.includes(e.id) && (
-                        <span className="shrink-0 text-[10px] text-[var(--color-fg-dim)]">
-                          redan sparad
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                  {incomingEvents.length > 12 && (
-                    <li className="text-xs text-[var(--color-fg-dim)]">
-                      + {incomingEvents.length - 12} till
-                    </li>
-                  )}
-                </ul>
-                <div className="mt-4 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={handleImport}
-                    className="flex-1 rounded-full bg-[var(--color-accent)] px-4 py-2 text-xs font-medium text-white hover:opacity-90"
-                  >
-                    Lägg till i mitt schema
-                  </button>
-                  <button
-                    type="button"
-                    onClick={clearImportParam}
-                    className="rounded-full border border-[var(--color-border)] px-4 py-2 text-xs text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]"
-                  >
-                    Avbryt
-                  </button>
-                </div>
-              </>
+              <ImportPanel
+                key={incomingIds.join(',')}
+                incomingEvents={incomingEvents}
+                savedIds={savedIds}
+                onImport={handleImport}
+                onCancel={clearImportParam}
+              />
             )}
           </div>
         )}
@@ -419,5 +376,120 @@ export default function ScheduleRoute() {
 
       </div>
     </PageSection>
+  )
+}
+
+function ImportPanel({
+  incomingEvents,
+  savedIds,
+  onImport,
+  onCancel,
+}: {
+  incomingEvents: EnrichedEvent[]
+  savedIds: string[]
+  onImport: (ids: string[]) => void
+  onCancel: () => void
+}) {
+  const selectableIds = useMemo(
+    () =>
+      incomingEvents
+        .filter((e) => !savedIds.includes(e.id))
+        .map((e) => e.id),
+    [incomingEvents, savedIds],
+  )
+  const [selected, setSelected] = useState<Set<string>>(
+    () => new Set(selectableIds),
+  )
+
+  const toggle = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const allSelected =
+    selectableIds.length > 0 && selectableIds.every((id) => selected.has(id))
+  const toggleAll = () => {
+    setSelected(allSelected ? new Set() : new Set(selectableIds))
+  }
+
+  const days = [
+    ...new Set(incomingEvents.map((e) => DAY_LABEL_BY_DATE[e.date] ?? e.date)),
+  ].join(', ')
+
+  return (
+    <>
+      <div className="flex items-baseline justify-between gap-2">
+        <h2 className="text-sm font-semibold">
+          Schema från någon annan — {incomingEvents.length} event
+        </h2>
+        {selectableIds.length > 1 && (
+          <button
+            type="button"
+            onClick={toggleAll}
+            className="shrink-0 text-[11px] text-[var(--color-accent)] hover:underline"
+          >
+            {allSelected ? 'Avmarkera alla' : 'Markera alla'}
+          </button>
+        )}
+      </div>
+      <p className="mt-1 text-xs text-[var(--color-fg-dim)]">{days}</p>
+      <ul className="mt-3 space-y-1">
+        {incomingEvents.map((e) => {
+          const alreadySaved = savedIds.includes(e.id)
+          const isChecked = !alreadySaved && selected.has(e.id)
+          return (
+            <li key={e.id}>
+              <label
+                className={`flex items-center gap-2 rounded-md px-1 py-1 text-xs ${
+                  alreadySaved
+                    ? 'cursor-default opacity-50'
+                    : 'cursor-pointer hover:bg-[var(--color-border)]/30'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  disabled={alreadySaved}
+                  onChange={() => toggle(e.id)}
+                  className="size-4 shrink-0 accent-[var(--color-accent)]"
+                />
+                <span className="shrink-0 whitespace-nowrap text-[var(--color-fg-dim)]">
+                  {DAY_LABEL_BY_DATE[e.date] ?? ''} {formatTime(e.startISO)}
+                </span>
+                <span className="flex-1 truncate">{e.title}</span>
+                {alreadySaved && (
+                  <span className="shrink-0 text-[10px] text-[var(--color-fg-dim)]">
+                    redan sparad
+                  </span>
+                )}
+              </label>
+            </li>
+          )
+        })}
+      </ul>
+      <div className="mt-4 flex gap-2">
+        <button
+          type="button"
+          onClick={() => onImport([...selected])}
+          disabled={selected.size === 0}
+          className="flex-1 rounded-full bg-[var(--color-accent)] px-4 py-2 text-xs font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {selected.size === 0
+            ? 'Välj minst ett event'
+            : `Lägg till ${selected.size} event i mitt schema`}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-full border border-[var(--color-border)] px-4 py-2 text-xs text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]"
+        >
+          Avbryt
+        </button>
+      </div>
+    </>
   )
 }
