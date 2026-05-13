@@ -5,6 +5,8 @@ type PageSectionProps = HTMLAttributes<HTMLElement> & {
   children: ReactNode;
 };
 
+const BASE = "mx-auto w-full max-w-4xl";
+
 export function PageSection({
   as: Component = "section",
   className,
@@ -13,7 +15,7 @@ export function PageSection({
 }: PageSectionProps) {
   return (
     <Component
-      className={`mx-auto max-w-md md:max-w-2xl${className ? ` ${className}` : ""}`}
+      className={className ? `${BASE} ${className}` : BASE}
       {...rest}
     >
       {children}

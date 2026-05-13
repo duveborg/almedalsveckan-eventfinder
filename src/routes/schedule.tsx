@@ -173,6 +173,10 @@ export default function ScheduleRoute() {
             )
           })}
         </div>
+        <p className="px-4 pb-3  text-[11px] leading-relaxed text-[var(--color-fg-dim)]">
+          Ditt schema sparas bara lokalt på den här enheten. Rensar du
+          webbläsardatan försvinner det.
+        </p>
       </header>
 
       <div className="p-4">
@@ -239,10 +243,7 @@ export default function ScheduleRoute() {
           </div>
         )}
 
-        <p className="mt-8 px-1 text-[11px] leading-relaxed text-[var(--color-fg-dim)]">
-          Ditt schema sparas bara lokalt på den här enheten. Rensar du
-          webbläsardatan försvinner det.
-        </p>
+
       </div>
     </PageSection>
   )
