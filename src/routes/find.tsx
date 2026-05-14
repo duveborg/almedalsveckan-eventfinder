@@ -323,7 +323,7 @@ export default function FindRoute() {
                 : "bg-[var(--color-surface)] text-[var(--color-fg-dim)]"
             }`}
           >
-            Alla
+            Alla dagar
           </button>
         </div>
         {selectedDate !== null && selectedDate !== "all" && (

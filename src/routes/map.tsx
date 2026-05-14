@@ -309,7 +309,7 @@ export default function MapRoute() {
                 : 'text-[var(--color-fg-dim)]'
             }`}
           >
-            Alla
+            Alla dagar
           </button>
           {WEEK_DAYS.map((d) => (
             <button

@@ -4,6 +4,8 @@ import { useSchedule } from "../store/schedule";
 import { useSavedEvents } from "../lib/useSavedEvents";
 import { overlaps } from "../lib/overlap";
 import { now } from "../lib/now";
+import { useLocation } from "../store/location";
+import { formatDistance, haversineMeters } from "../lib/distance";
 interface Props {
   event: EnrichedEvent;
 }
@@ -39,10 +41,21 @@ export function EventCard({ event }: Props) {
   const saved = useSchedule((s) => s.savedIds.includes(event.id));
   const toggle = useSchedule((s) => s.toggle);
   const savedEvents = useSavedEvents();
+  const userCoords = useLocation((s) => s.coords);
   const relative = relativeMinutes(event, now());
   const conflict = saved
     ? null
     : (savedEvents.find((s) => overlaps(event, s)) ?? null);
+
+  const eventLat = event.location?.latitude;
+  const eventLng = event.location?.longitude;
+  const distanceMeters =
+    userCoords && eventLat != null && eventLng != null
+      ? haversineMeters(
+          { lat: userCoords.lat, lng: userCoords.lng },
+          { lat: eventLat, lng: eventLng },
+        )
+      : null;
 
   return (
     <article
@@ -72,6 +85,9 @@ export function EventCard({ event }: Props) {
         {event.location?.name && (
           <div className="mt-1 text-xs text-[var(--color-fg-dim)]">
             📍 {event.location.name}
+            {distanceMeters != null && (
+              <span> · {formatDistance(distanceMeters)}</span>
+            )}
           </div>
         )}
         {event.topics.length > 0 && (
