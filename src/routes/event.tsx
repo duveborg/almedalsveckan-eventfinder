@@ -242,7 +242,7 @@ export default function EventDetailRoute() {
             {event.parties.map((p) => (
               <Link
                 key={p}
-                to={`/?parties=${encodeURIComponent(p)}`}
+                to={`/?parties=${encodeURIComponent(p)}&date=all`}
                 className="rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-accent)] hover:bg-[var(--color-accent)]/30"
               >
                 {p}
@@ -276,7 +276,7 @@ export default function EventDetailRoute() {
             {event.topics.map((t) => (
               <Link
                 key={t}
-                to={`/?topics=${encodeURIComponent(t)}`}
+                to={`/?topics=${encodeURIComponent(t)}&date=all`}
                 className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-0.5 text-[10px] text-[var(--color-fg-dim)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
               >
                 {t}
@@ -457,7 +457,7 @@ export default function EventDetailRoute() {
                   <strong className="font-medium">{p.name}</strong>
                   {party && (
                     <Link
-                      to={`/?parties=${encodeURIComponent(party)}`}
+                      to={`/?parties=${encodeURIComponent(party)}&date=all`}
                       className="ml-1 rounded-full bg-[var(--color-accent)]/20 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-accent)] hover:bg-[var(--color-accent)]/30"
                     >
                       {party}
@@ -473,7 +473,7 @@ export default function EventDetailRoute() {
                     <span className="text-[var(--color-fg-dim)]">
                       {" · "}
                       <Link
-                        to={`/?organizations=${encodeURIComponent(p.organization)}`}
+                        to={`/?organizations=${encodeURIComponent(p.organization)}&date=all`}
                         className="text-[var(--color-accent)] underline-offset-2 hover:underline"
                       >
                         {p.organization}

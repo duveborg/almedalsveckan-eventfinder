@@ -476,7 +476,7 @@ export default function FindRoute() {
         {organizationChips.length > 0 && (
           <div className="px-4 pb-3">
             <div className="mb-1 flex items-baseline justify-between text-[11px]">
-              <span className="text-[var(--color-fg-dim)]">Organisation</span>
+              <span className="text-[var(--color-fg-dim)]">Arrangör</span>
               {activeOrganizations.size > 0 && (
                 <button
                   type="button"
