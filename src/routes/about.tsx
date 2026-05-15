@@ -9,7 +9,7 @@ export default function AboutRoute() {
   const handleShare = async () => {
     const shareData = {
       title: 'Almedalen 2026 — hitta dina evenemang',
-      text: 'Hitta event i Almedalen 2026 — karta, schema, rekommendationer, sök och vad som händer just nu.',
+      text: 'Hitta evenemang i Almedalen 2026 — karta, schema, rekommendationer, sök och vad som händer just nu.',
       url: window.location.origin,
     }
     if (navigator.share) {
@@ -53,8 +53,8 @@ export default function AboutRoute() {
             >
               officiella Almedalsprogrammet
             </a>
-            . Varje event analyseras också utifrån sitt innehåll så att liknande
-            event kan hittas och du kan få personliga förslag i För dig.
+            . Varje evenemang analyseras också utifrån sitt innehåll så att liknande
+            evenemang kan hittas och du kan få personliga förslag i För dig.
           </p>
         </div>
 

@@ -541,7 +541,7 @@ export default function FindRoute() {
         ))}
         {visible.length === 0 && (
           <li className="rounded-lg bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-fg-dim)]">
-            Hittade inga event. Prova ett annat filter.
+            Hittade inga evenemang. Prova ett annat filter.
           </li>
         )}
         {visible.length > visibleLimit && (

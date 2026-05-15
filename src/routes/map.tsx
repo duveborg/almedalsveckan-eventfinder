@@ -340,7 +340,7 @@ export default function MapRoute() {
         <div className="absolute inset-x-0 bottom-0 z-10 max-h-[55svh] overflow-y-auto rounded-t-2xl border-t border-[var(--color-border)] bg-[var(--color-bg)]/97 p-4 backdrop-blur">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold">
-              {focusedEvents.length} event här
+              {focusedEvents.length} evenemang här
             </h2>
             <button
               type="button"

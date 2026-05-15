@@ -39,7 +39,7 @@ function icsFilename(title: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
-  return `${slug || "event"}.ics`;
+  return `${slug || "evenemang"}.ics`;
 }
 
 const SOCIAL_LABELS: Array<

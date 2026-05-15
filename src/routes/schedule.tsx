@@ -136,7 +136,7 @@ export default function ScheduleRoute() {
     const url = `${window.location.origin}/schedule?import=${savedIds.join(',')}`
     const shareData = {
       title: 'Mitt schema – Almedalen 2026',
-      text: `Här är ${savedIds.length} event jag tänker gå på i Almedalen 2026.`,
+      text: `Här är ${savedIds.length} evenemang jag tänker gå på i Almedalen 2026.`,
       url,
     }
     if (navigator.share) {
@@ -276,9 +276,9 @@ export default function ScheduleRoute() {
           <div className="mb-4 rounded-xl border border-[var(--color-accent)]/40 bg-[var(--color-surface)] p-4">
             {incomingEvents.length === 0 ? (
               <>
-                <h2 className="text-sm font-semibold">Inga event hittades</h2>
+                <h2 className="text-sm font-semibold">Inga evenemang hittades</h2>
                 <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
-                  Den delade länken matchade inga event i programmet.
+                  Den delade länken matchade inga evenemang i programmet.
                 </p>
                 <div className="mt-3">
                   <button
@@ -305,15 +305,15 @@ export default function ScheduleRoute() {
         {importedCount !== null && (
           <div className="mb-4 rounded-xl bg-[var(--color-accent)]/15 px-4 py-3 text-sm text-[var(--color-accent)]">
             {importedCount === 0
-              ? 'Alla event fanns redan i ditt schema'
-              : `${importedCount} event tillagda i ditt schema`}
+              ? 'Alla evenemang fanns redan i ditt schema'
+              : `${importedCount} evenemang tillagda i ditt schema`}
           </div>
         )}
 
         {savedEvents.length === 0 ? (
           <div className="rounded-xl bg-[var(--color-surface)] p-8 text-center">
             <p className="text-sm text-[var(--color-fg-dim)]">
-              Inga sparade event ännu. Hitta något i{' '}
+              Inga sparade evenemang ännu. Hitta något i{' '}
               <Link to="/" className="text-[var(--color-accent)] underline">
                 Hitta
               </Link>{' '}
@@ -326,7 +326,7 @@ export default function ScheduleRoute() {
           </div>
         ) : forDay.length === 0 ? (
           <div className="rounded-xl bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-fg-dim)]">
-            Inga sparade event den här dagen.
+            Inga sparade evenemang den här dagen.
           </div>
         ) : (
           <ul className="space-y-2">
@@ -479,8 +479,8 @@ function ImportPanel({
           className="flex-1 rounded-full bg-[var(--color-accent)] px-4 py-2 text-xs font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {selected.size === 0
-            ? 'Välj minst ett event'
-            : `Lägg till ${selected.size} event i mitt schema`}
+            ? 'Välj minst ett evenemang'
+            : `Lägg till ${selected.size} evenemang i mitt schema`}
         </button>
         <button
           type="button"

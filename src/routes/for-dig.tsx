@@ -72,7 +72,7 @@ export default function ForDigRoute() {
         <h1 className="text-2xl font-semibold">Rekommendationer för dig</h1>
         <p className="mt-1 text-xs text-[var(--color-fg-dim)]">
           {savedIds.length === 0
-            ? 'Spara event i schemat så hittar vi liknande åt dig.'
+            ? 'Spara evenemang i schemat så hittar vi liknande åt dig.'
             : `Baserat på ${savedIds.length} evenemang i ditt schema`}
         </p>
       </header>
@@ -80,7 +80,7 @@ export default function ForDigRoute() {
       <div className="p-4">
         {savedIds.length === 0 ? (
           <div className="rounded-xl bg-[var(--color-surface)] p-8 text-center text-sm text-[var(--color-fg-dim)]">
-            Lägg till några event i schemat så får du förslag här.
+            Lägg till några evenemang i schemat så får du förslag här.
           </div>
         ) : embeddingsMissing ? (
           <div className="rounded-xl bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-fg-dim)]">
