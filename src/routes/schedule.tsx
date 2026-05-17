@@ -8,6 +8,7 @@ import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useUrlParam } from '../lib/urlState'
 import { haversineMeters } from '../lib/distance'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
+import { useRobots } from '../lib/useRobots'
 import { downloadIcs } from '../lib/ics'
 import { overlaps } from '../lib/overlap'
 import { PageSection } from '../components/PageSection'
@@ -83,6 +84,7 @@ function suggestNext(
 
 export default function ScheduleRoute() {
   useDocumentTitle('Ditt schema')
+  useRobots('noindex')
   const [events, setEvents] = useState<EnrichedEvent[] | null>(() => getEventsSync())
   const [day, setDay] = useUrlParam('day', WEEK_DAYS[0].date)
   const savedIds = useSchedule((s) => s.savedIds)

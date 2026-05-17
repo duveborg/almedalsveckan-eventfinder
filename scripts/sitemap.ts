@@ -6,7 +6,6 @@ const EVENTS_PATH = 'src/data/generated/events.json'
 const OUT_PATH = 'public/sitemap.xml'
 
 const STATIC_PATHS: Array<{ path: string; priority: string; changefreq: string }> = [
-  { path: '/find', priority: '1.0', changefreq: 'hourly' },
   { path: '/map', priority: '0.8', changefreq: 'daily' },
   { path: '/search', priority: '0.7', changefreq: 'daily' },
   { path: '/about', priority: '0.3', changefreq: 'monthly' },

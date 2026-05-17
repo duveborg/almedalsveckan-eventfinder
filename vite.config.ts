@@ -12,6 +12,7 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'robots.txt'],
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,json,bin}'],
+        globIgnores: ['**/event/**/*.html'],
         maximumFileSizeToCacheInBytes: 16 * 1024 * 1024,
         navigateFallback: '/index.html',
       },

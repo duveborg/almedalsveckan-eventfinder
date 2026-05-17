@@ -292,6 +292,7 @@ export default function MapRoute() {
 
   return (
     <section className="relative h-full">
+      <h1 className="sr-only">Karta över Almedalsveckan 2026</h1>
       <div ref={containerRef} className="h-full w-full" />
       {!events && (
         <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[var(--color-bg)]/70 backdrop-blur-sm">
