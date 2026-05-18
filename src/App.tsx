@@ -19,7 +19,7 @@ export default function App() {
 
   return (
     <div className="flex h-[100svh] flex-col">
-      <header className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2">
+      <header className="relative flex items-center border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2">
         <Link to="/" className="flex items-center gap-2">
           <img src="/favicon.svg" alt="" className="h-5 w-5" />
           <span className="text-sm font-semibold tracking-tight">Almedalen 2026</span>
@@ -27,15 +27,31 @@ export default function App() {
             Beta
           </span>
         </Link>
-        <span className="hidden text-[11px] italic text-[var(--color-fg-dim)] lg:inline">
-          Sajten är optimerad för mobila enheter
-        </span>
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 md:block">
+          <ul className="flex items-center gap-5 text-sm font-medium">
+            {tabs.map((tab) => (
+              <li key={tab.to}>
+                <NavLink
+                  to={tab.to}
+                  end={tab.end}
+                  className={({ isActive }) =>
+                    isActive
+                      ? 'text-[var(--color-accent)]'
+                      : 'text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]'
+                  }
+                >
+                  {tab.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </header>
       <main className="min-h-0 flex-1 overflow-y-auto">
         <Outlet />
       </main>
-      <nav className="border-t border-[var(--color-border)] bg-[var(--color-surface)] pt-2 pb-2">
-        <ul className="mx-auto flex max-w-md justify-center gap-6 md:max-w-2xl">
+      <nav className="border-t border-[var(--color-border)] bg-[var(--color-surface)] pt-2 pb-2 md:hidden">
+        <ul className="mx-auto flex max-w-md justify-center gap-6">
           {tabs.map((tab) => (
             <li key={tab.to}>
               <NavLink
