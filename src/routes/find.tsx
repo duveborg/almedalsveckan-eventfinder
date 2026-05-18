@@ -197,16 +197,16 @@ export default function FindRoute() {
     actualNow,
   );
 
-  const topicChips = useMemo(() => topTopics(events ?? [], 20), [events]);
+  const topicChips = useMemo(() => topTopics(events ?? [], 40), [events]);
   const eventTypeChips = useMemo(
-    () => topEventTypes(events ?? [], 20),
+    () => topEventTypes(events ?? [], 40),
     [events],
   );
   const organizationChips = useMemo(
     () => topOrganizations(events ?? [], 40),
     [events],
   );
-  const partyChips = useMemo(() => topParties(events ?? [], 20), [events]);
+  const partyChips = useMemo(() => topParties(events ?? [], 40), [events]);
 
   const visible = useMemo(() => {
     if (!events) return [];
