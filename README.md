@@ -1,4 +1,4 @@
-# Almedalen 2026
+# Almedalsveckan 2026
 
 A faster way to navigate the Almedalsveckan 2026 program. Browse the map, build a schedule, search, or see what's happening right now.
 

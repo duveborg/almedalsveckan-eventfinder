@@ -137,8 +137,8 @@ export default function ScheduleRoute() {
   const handleShare = async () => {
     const url = `${window.location.origin}/schedule?import=${savedIds.join(',')}`
     const shareData = {
-      title: 'Mitt schema – Almedalen 2026',
-      text: `Här är ${savedIds.length} evenemang jag tänker gå på i Almedalen 2026.`,
+      title: 'Mitt schema – Almedalsveckan 2026',
+      text: `Här är ${savedIds.length} evenemang jag tänker gå på i Almedalsveckan 2026.`,
       url,
     }
     if (navigator.share) {

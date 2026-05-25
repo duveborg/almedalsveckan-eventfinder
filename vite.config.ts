@@ -27,8 +27,8 @@ export default defineConfig({
         navigateFallback: '/index.html',
       },
       manifest: {
-        name: 'Almedalen 2026',
-        short_name: 'Almedalen',
+        name: 'Almedalsveckan 2026',
+        short_name: 'Almedalsveckan',
         description:
           'Hitta event under Almedalsveckan 2026 — karta, schema, rekommendationer, sök och vad som händer just nu.',
         lang: 'sv',

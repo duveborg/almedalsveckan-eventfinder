@@ -18,18 +18,18 @@ interface StaticPage {
 const STATIC_PAGES: StaticPage[] = [
   {
     path: '/map',
-    title: 'Karta — Almedalen 2026',
+    title: 'Karta — Almedalsveckan 2026',
     description: 'Karta över alla evenemang under Almedalsveckan 2026.',
   },
   {
     path: '/search',
-    title: 'Sök — Almedalen 2026',
+    title: 'Sök — Almedalsveckan 2026',
     description: 'Sök bland alla evenemang under Almedalsveckan 2026.',
   },
   {
     path: '/about',
-    title: 'Om — Almedalen 2026',
-    description: 'Om appen Almedalen 2026 — ett alternativt sätt att navigera Almedalsveckans program.',
+    title: 'Om — Almedalsveckan 2026',
+    description: 'Om appen Almedalsveckan 2026 — ett alternativt sätt att navigera Almedalsveckans program.',
   },
 ]
 
@@ -192,7 +192,7 @@ async function main(): Promise<void> {
   for (const e of data.events) {
     const desc = eventDescription(e) || DEFAULT_DESCRIPTION
     const html = applyHead(template, {
-      title: `${e.title} — Almedalen 2026`,
+      title: `${e.title} — Almedalsveckan 2026`,
       description: desc,
       canonical: `${SITE_URL}/event/${encodeURIComponent(e.id)}`,
       ogType: 'article',
