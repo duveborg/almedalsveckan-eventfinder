@@ -82,6 +82,23 @@ export function EventCard({ event }: Props) {
         <h3 className="text-sm font-semibold leading-snug text-[var(--color-fg)]">
           {event.title}
         </h3>
+        {event.parties.length > 0 && (
+          <div className="mt-1 flex flex-wrap gap-1">
+            {event.parties.map((p) => (
+              <span
+                key={p}
+                className="rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-accent)]"
+              >
+                {p}
+              </span>
+            ))}
+          </div>
+        )}
+        {event.organizer && event.organizer.length > 0 && (
+          <div className="mt-1 text-xs font-medium text-[var(--color-fg-dim)]">
+            {event.organizer.join(", ")}
+          </div>
+        )}
         {event.location?.name && (
           <div className="mt-1 text-xs text-[var(--color-fg-dim)]">
             📍 {event.location.name}

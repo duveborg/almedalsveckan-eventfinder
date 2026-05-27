@@ -251,6 +251,12 @@ export default function EventDetailRoute() {
           </div>
         )}
 
+        {event.organizer && event.organizer.length > 0 && (
+          <div className="text-sm font-medium text-[var(--color-fg)]">
+            {event.organizer.join(", ")}
+          </div>
+        )}
+
         <div className="space-y-1 text-xs text-[var(--color-fg-dim)]">
           <div>
           📅 {event.weekDayName} {event.shortDate} · {event.startTime}–
@@ -425,19 +431,6 @@ export default function EventDetailRoute() {
           <p className="text-sm whitespace-pre-line text-[var(--color-fg)]">
             {event.description}
           </p>
-        </section>
-      )}
-
-      {event.organizer && event.organizer.length > 0 && (
-        <section className="mb-4">
-          <h2 className="mb-1 text-[10px] uppercase tracking-wider text-[var(--color-fg-dim)]">
-            Arrangör
-          </h2>
-          <ul className="text-sm">
-            {event.organizer.map((o) => (
-              <li key={o}>{o}</li>
-            ))}
-          </ul>
         </section>
       )}
 
