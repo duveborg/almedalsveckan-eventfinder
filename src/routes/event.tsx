@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getEventsSync, loadEvents } from "../data/load";
 import { loadEmbeddings, cosineInt8 } from "../data/galaxy";
@@ -181,9 +181,22 @@ export default function EventDetailRoute() {
 
   const speakers = event.persons ?? [];
   const duration = formatDuration(event.durationMin);
-  const metaLine = [event.category, event.eventType, event.languages]
-    .filter((v): v is string => !!v && v.length > 0)
-    .join(" · ");
+  const metaItems: Array<{ key: string; to: string | null; label: string }> =
+    [];
+  if (event.category)
+    metaItems.push({
+      key: "category",
+      to: `/?topics=${encodeURIComponent(event.category)}&date=all`,
+      label: event.category,
+    });
+  if (event.eventType)
+    metaItems.push({
+      key: "type",
+      to: `/?types=${encodeURIComponent(event.eventType)}&date=all`,
+      label: event.eventType,
+    });
+  if (event.languages)
+    metaItems.push({ key: "lang", to: null, label: event.languages });
   const extraUrls = [
     event.urls?.url2,
     event.urls?.url3,
@@ -259,11 +272,36 @@ export default function EventDetailRoute() {
 
         <div className="space-y-1 text-xs text-[var(--color-fg-dim)]">
           <div>
-          📅 {event.weekDayName} {event.shortDate} · {event.startTime}–
-            {event.endTime}
+            📅{" "}
+            <Link
+              to={`/?date=${encodeURIComponent(event.date)}`}
+              className="hover:text-[var(--color-accent)] hover:underline"
+            >
+              {event.weekDayName} {event.shortDate}
+            </Link>{" "}
+            · {event.startTime}–{event.endTime}
             {duration && ` · ${duration}`}
           </div>
-          {metaLine && <div>ℹ️ {metaLine}</div>}
+          {metaItems.length > 0 && (
+            <div>
+              ℹ️{" "}
+              {metaItems.map((item, i) => (
+                <Fragment key={item.key}>
+                  {i > 0 && " · "}
+                  {item.to ? (
+                    <Link
+                      to={item.to}
+                      className="hover:text-[var(--color-accent)] hover:underline"
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    item.label
+                  )}
+                </Fragment>
+              ))}
+            </div>
+          )}
           {event.location?.name && (
             <div>
               📍 {event.location.name}
@@ -289,9 +327,12 @@ export default function EventDetailRoute() {
               </Link>
             ))}
             {foodServed && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-[10px] text-[var(--color-accent)]">
+              <Link
+                to="/?food=1&date=all"
+                className="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent)]/20 px-2 py-0.5 text-[10px] text-[var(--color-accent)] hover:bg-[var(--color-accent)]/30"
+              >
                 🍽 Mat serveras
-              </span>
+              </Link>
             )}
           </div>
         )}
