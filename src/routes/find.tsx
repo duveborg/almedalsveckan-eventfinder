@@ -538,7 +538,7 @@ export default function FindRoute() {
                     </button>
                   ))}
               {organizerChips.length > organizerLimit && (
-                <div>
+                <div className="md:mt-2 md:basis-full">
                   <button
                     type="button"
                     onClick={() =>
