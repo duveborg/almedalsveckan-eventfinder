@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getEventsSync, loadEvents } from "../data/load";
 import type { EnrichedEvent } from "../data/types";
 import { hasFood } from "../data/food";
@@ -126,8 +126,15 @@ export default function FindRoute() {
   const [activeOrganizers, setActiveOrganizers] = useUrlSet("organizer");
   const [activeParties, setActiveParties] = useUrlSet("parties");
   const [actualNow, setActualNow] = useState(now());
-  const [visibleLimit, setVisibleLimit] = useState(50);
-  const [organizerLimit, setOrganizerLimit] = useState(ORGANIZER_STEP);
+  const [visibleLimitParam, setVisibleLimitParam] = useUrlParam("n", "50");
+  const [organizerLimitParam, setOrganizerLimitParam] = useUrlParam(
+    "orgN",
+    String(ORGANIZER_STEP),
+  );
+  const visibleLimit = Number(visibleLimitParam) || 50;
+  const organizerLimit = Number(organizerLimitParam) || ORGANIZER_STEP;
+  const setVisibleLimit = (n: number) => setVisibleLimitParam(String(n));
+  const setOrganizerLimit = (n: number) => setOrganizerLimitParam(String(n));
 
   const selectedDate: string | null = dateParam || null;
   const hourStart = Number(hourParam) || HOUR_MIN;
@@ -180,18 +187,26 @@ export default function FindRoute() {
     return () => clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    setVisibleLimit(50);
-  }, [
+  // Reset the events list back to the first page whenever the filters change —
+  // but not on mount, so a restored `?n=` survives back-navigation. Comparing a
+  // filter signature (rather than a "first run" flag) keeps this correct under
+  // StrictMode's double-invoked effects, where the ref persists across remount.
+  const filterKey = JSON.stringify([
     selectedDate,
     hourStart,
     hourEnd,
     foodOnly,
-    activeTopics,
-    activeEventTypes,
-    activeOrganizers,
-    activeParties,
+    [...activeTopics],
+    [...activeEventTypes],
+    [...activeOrganizers],
+    [...activeParties],
   ]);
+  const lastFilterKey = useRef(filterKey);
+  useEffect(() => {
+    if (lastFilterKey.current === filterKey) return;
+    lastFilterKey.current = filterKey;
+    setVisibleLimitParam("50");
+  }, [filterKey, setVisibleLimitParam]);
 
   const { start: cursor, end: cursorEnd } = chosenWindow(
     selectedDate,
@@ -523,15 +538,17 @@ export default function FindRoute() {
                     </button>
                   ))}
               {organizerChips.length > organizerLimit && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setOrganizerLimit((n) => n + ORGANIZER_STEP)
-                  }
-                  className="rounded-full border border-[var(--color-border)] px-3 py-1.5 whitespace-nowrap text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]"
-                >
-                  Visa fler ({organizerChips.length - organizerLimit})
-                </button>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOrganizerLimit(organizerLimit + ORGANIZER_STEP)
+                    }
+                    className="rounded-full border border-[var(--color-border)] px-3 py-1.5 whitespace-nowrap text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]"
+                  >
+                    Visa fler ({organizerChips.length - organizerLimit})
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -563,7 +580,7 @@ export default function FindRoute() {
           <li className="pt-2 text-center">
             <button
               type="button"
-              onClick={() => setVisibleLimit((n) => n + 50)}
+              onClick={() => setVisibleLimit(visibleLimit + 50)}
               className="rounded-full bg-[var(--color-surface)] px-4 py-2 text-xs text-[var(--color-fg)] hover:bg-[var(--color-border)]"
             >
               Visa fler ({visible.length - visibleLimit} kvar)
