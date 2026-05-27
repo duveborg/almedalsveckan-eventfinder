@@ -512,8 +512,8 @@ export default function FindRoute() {
                 return (
                   <button
                     key={o}
-                    type="button"
                     onClick={() => toggleOrganizer(o)}
+                    type="button"
                     className={`rounded-full px-3 py-1.5 whitespace-nowrap ${
                       active
                         ? "bg-[var(--color-accent)] text-white"
