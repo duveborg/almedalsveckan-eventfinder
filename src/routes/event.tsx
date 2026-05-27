@@ -109,10 +109,6 @@ export default function EventDetailRoute() {
   const similar = useSimilar(eventId);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
 
-  useEffect(() => {
-    document.querySelector("main")?.scrollTo({ top: 0 });
-  }, [eventId]);
-
   const event = useMemo(
     () => events?.find((e) => e.id === eventId) ?? null,
     [events, eventId],
@@ -266,7 +262,17 @@ export default function EventDetailRoute() {
 
         {event.organizer && event.organizer.length > 0 && (
           <div className="text-sm font-medium text-[var(--color-fg)]">
-            {event.organizer.join(", ")}
+            {event.organizer.map((o, i) => (
+              <Fragment key={`${o}_${i}`}>
+                {i > 0 && ", "}
+                <Link
+                  to={`/?organizer=${encodeURIComponent(o)}&date=all`}
+                  className="hover:text-[var(--color-accent)] hover:underline"
+                >
+                  {o}
+                </Link>
+              </Fragment>
+            ))}
           </div>
         )}
 
@@ -506,12 +512,7 @@ export default function EventDetailRoute() {
                   {p.organization && (
                     <span className="text-[var(--color-fg-dim)]">
                       {" · "}
-                      <Link
-                        to={`/?organizations=${encodeURIComponent(p.organization)}&date=all`}
-                        className="text-[var(--color-accent)] underline-offset-2 hover:underline"
-                      >
-                        {p.organization}
-                      </Link>
+                      {p.organization}
                     </span>
                   )}
                 </li>

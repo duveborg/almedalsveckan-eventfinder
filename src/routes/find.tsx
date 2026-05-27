@@ -47,15 +47,15 @@ function topParties(events: EnrichedEvent[], n: number): string[] {
     .map(([t]) => t);
 }
 
-function topOrganizations(events: EnrichedEvent[], n: number): string[] {
+function topOrganizers(events: EnrichedEvent[], n: number): string[] {
   const counts = new Map<string, number>();
   for (const e of events) {
     const seen = new Set<string>();
-    for (const p of e.persons ?? []) {
-      const o = typeof p.organization === "string" ? p.organization.trim() : "";
-      if (!o || seen.has(o)) continue;
-      seen.add(o);
-      counts.set(o, (counts.get(o) ?? 0) + 1);
+    for (const o of e.organizer ?? []) {
+      const k = typeof o === "string" ? o.trim() : "";
+      if (!k || seen.has(k)) continue;
+      seen.add(k);
+      counts.set(k, (counts.get(k) ?? 0) + 1);
     }
   }
   return Array.from(counts.entries())
@@ -76,6 +76,9 @@ const WEEK_END_MS = new Date("2026-06-26T23:59:00+02:00").getTime();
 
 const HOUR_MIN = 7;
 const HOUR_MAX = 23;
+
+/** How many organizer chips to reveal initially and per "load more" click. */
+const ORGANIZER_STEP = 24;
 
 function hourToDate(date: string, hour: number): Date {
   return new Date(`${date}T${String(hour).padStart(2, "0")}:00:00+02:00`);
@@ -120,11 +123,11 @@ export default function FindRoute() {
   const [foodParam, setFoodParam] = useUrlParam("food", "0");
   const [activeTopics, setActiveTopics] = useUrlSet("topics");
   const [activeEventTypes, setActiveEventTypes] = useUrlSet("types");
-  const [activeOrganizations, setActiveOrganizations] =
-    useUrlSet("organizations");
+  const [activeOrganizers, setActiveOrganizers] = useUrlSet("organizer");
   const [activeParties, setActiveParties] = useUrlSet("parties");
   const [actualNow, setActualNow] = useState(now());
   const [visibleLimit, setVisibleLimit] = useState(50);
+  const [organizerLimit, setOrganizerLimit] = useState(ORGANIZER_STEP);
 
   const selectedDate: string | null = dateParam || null;
   const hourStart = Number(hourParam) || HOUR_MIN;
@@ -152,11 +155,11 @@ export default function FindRoute() {
     else next.add(t);
     setActiveEventTypes(next);
   };
-  const toggleOrganization = (o: string) => {
-    const next = new Set(activeOrganizations);
+  const toggleOrganizer = (o: string) => {
+    const next = new Set(activeOrganizers);
     if (next.has(o)) next.delete(o);
     else next.add(o);
-    setActiveOrganizations(next);
+    setActiveOrganizers(next);
   };
   const toggleParty = (p: string) => {
     const next = new Set(activeParties);
@@ -186,7 +189,7 @@ export default function FindRoute() {
     foodOnly,
     activeTopics,
     activeEventTypes,
-    activeOrganizations,
+    activeOrganizers,
     activeParties,
   ]);
 
@@ -202,11 +205,12 @@ export default function FindRoute() {
     () => topEventTypes(events ?? [], 40),
     [events],
   );
-  const organizationChips = useMemo(
-    () => topOrganizations(events ?? [], 40),
+  const organizerChips = useMemo(
+    () => topOrganizers(events ?? [], 80),
     [events],
   );
   const partyChips = useMemo(() => topParties(events ?? [], 40), [events]);
+  const visibleOrganizers = organizerChips.slice(0, organizerLimit);
 
   const visible = useMemo(() => {
     if (!events) return [];
@@ -226,8 +230,8 @@ export default function FindRoute() {
         )
           return false;
         if (
-          activeOrganizations.size > 0 &&
-          !(e.persons ?? []).some((p) => activeOrganizations.has(p.organization))
+          activeOrganizers.size > 0 &&
+          !(e.organizer ?? []).some((o) => activeOrganizers.has(o))
         )
           return false;
         if (
@@ -248,7 +252,7 @@ export default function FindRoute() {
     foodOnly,
     activeTopics,
     activeEventTypes,
-    activeOrganizations,
+    activeOrganizers,
     activeParties,
   ]);
 
@@ -473,14 +477,14 @@ export default function FindRoute() {
             </div>
           </div>
         )}
-        {organizationChips.length > 0 && (
+        {organizerChips.length > 0 && (
           <div className="px-4 pb-3">
             <div className="mb-1 flex items-baseline justify-between text-[11px]">
               <span className="text-[var(--color-fg-dim)]">Arrangör</span>
-              {activeOrganizations.size > 0 && (
+              {activeOrganizers.size > 0 && (
                 <button
                   type="button"
-                  onClick={() => setActiveOrganizations(new Set())}
+                  onClick={() => setActiveOrganizers(new Set())}
                   className="text-[var(--color-fg-dim)] underline"
                 >
                   Rensa
@@ -488,13 +492,13 @@ export default function FindRoute() {
               )}
             </div>
             <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 text-xs md:mx-0 md:flex-wrap md:overflow-x-visible md:px-0">
-              {organizationChips.map((o) => {
-                const active = activeOrganizations.has(o);
+              {visibleOrganizers.map((o) => {
+                const active = activeOrganizers.has(o);
                 return (
                   <button
                     key={o}
                     type="button"
-                    onClick={() => toggleOrganization(o)}
+                    onClick={() => toggleOrganizer(o)}
                     className={`rounded-full px-3 py-1.5 whitespace-nowrap ${
                       active
                         ? "bg-[var(--color-accent)] text-white"
@@ -505,19 +509,30 @@ export default function FindRoute() {
                   </button>
                 );
               })}
-              {activeOrganizations.size > 0 &&
-                Array.from(activeOrganizations)
-                  .filter((o) => !organizationChips.includes(o))
+              {activeOrganizers.size > 0 &&
+                Array.from(activeOrganizers)
+                  .filter((o) => !visibleOrganizers.includes(o))
                   .map((o) => (
                     <button
                       key={o}
                       type="button"
-                      onClick={() => toggleOrganization(o)}
+                      onClick={() => toggleOrganizer(o)}
                       className="rounded-full bg-[var(--color-accent)] px-3 py-1.5 whitespace-nowrap text-white"
                     >
                       {o}
                     </button>
                   ))}
+              {organizerChips.length > organizerLimit && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOrganizerLimit((n) => n + ORGANIZER_STEP)
+                  }
+                  className="rounded-full border border-[var(--color-border)] px-3 py-1.5 whitespace-nowrap text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]"
+                >
+                  Visa fler ({organizerChips.length - organizerLimit})
+                </button>
+              )}
             </div>
           </div>
         )}
