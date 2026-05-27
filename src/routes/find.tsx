@@ -78,7 +78,7 @@ const HOUR_MIN = 7;
 const HOUR_MAX = 23;
 
 /** How many organizer chips to reveal initially and per "load more" click. */
-const ORGANIZER_STEP = 50;
+const ORGANIZER_STEP = 70;
 
 function hourToDate(date: string, hour: number): Date {
   return new Date(`${date}T${String(hour).padStart(2, "0")}:00:00+02:00`);
