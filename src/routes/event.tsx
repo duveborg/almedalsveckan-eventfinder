@@ -149,6 +149,10 @@ export default function EventDetailRoute() {
     loadEvents().then(setEvents);
   }, [events]);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [eventId]);
+
   const similarEvents = useMemo(() => {
     if (!similar || !events) return null;
     const byId = new Map(events.map((e) => [e.id, e]));
