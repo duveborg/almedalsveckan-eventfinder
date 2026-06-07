@@ -150,7 +150,7 @@ export default function EventDetailRoute() {
   }, [events]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    document.querySelector("main")?.scrollTo(0, 0);
   }, [eventId]);
 
   const similarEvents = useMemo(() => {
