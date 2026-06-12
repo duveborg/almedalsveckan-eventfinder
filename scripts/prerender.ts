@@ -69,13 +69,24 @@ function eventJsonLd(e: EnrichedEvent): string {
     url,
   }
   if (e.description) ld.description = e.description
-  if (e.location?.name) {
+  // Google requires `location` on Event — fall back to location.description
+  // (often the venue name) and, failing that, to Visby where all events are held.
+  const desc = e.location?.description
+  const venueName =
+    e.location?.name ?? (typeof desc === 'string' && desc.trim() ? desc.trim() : null)
+  const hasDigital =
+    e.digitalStream === 'true' || !!e.digitalStreamUrl || !!e.interactiveLink
+  const streamUrl = e.digitalStreamUrl || e.interactiveLink
+  if (!venueName && hasDigital && streamUrl) {
+    ld.location = { '@type': 'VirtualLocation', url: streamUrl }
+    ld.eventAttendanceMode = 'https://schema.org/OnlineEventAttendanceMode'
+  } else {
     const loc: Record<string, unknown> = {
       '@type': 'Place',
-      name: e.location.name,
+      name: venueName ?? 'Visby',
       address: { '@type': 'PostalAddress', addressLocality: 'Visby', addressCountry: 'SE' },
     }
-    if (e.location.latitude != null && e.location.longitude != null) {
+    if (e.location?.latitude != null && e.location?.longitude != null) {
       loc.geo = {
         '@type': 'GeoCoordinates',
         latitude: e.location.latitude,
@@ -83,15 +94,9 @@ function eventJsonLd(e: EnrichedEvent): string {
       }
     }
     ld.location = loc
-  }
-  const hasDigital =
-    e.digitalStream === 'true' || !!e.digitalStreamUrl || !!e.interactiveLink
-  if (e.location?.name && hasDigital) {
-    ld.eventAttendanceMode = 'https://schema.org/MixedEventAttendanceMode'
-  } else if (hasDigital) {
-    ld.eventAttendanceMode = 'https://schema.org/OnlineEventAttendanceMode'
-  } else {
-    ld.eventAttendanceMode = 'https://schema.org/OfflineEventAttendanceMode'
+    ld.eventAttendanceMode = hasDigital
+      ? 'https://schema.org/MixedEventAttendanceMode'
+      : 'https://schema.org/OfflineEventAttendanceMode'
   }
   if (e.organizer?.length) {
     ld.organizer = e.organizer.map((name) => ({ '@type': 'Organization', name }))
