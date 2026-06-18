@@ -13,6 +13,7 @@ import { now } from "../lib/now";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { downloadIcs } from "../lib/ics";
 import { PageSection } from "../components/PageSection";
+import { trackEvent } from "../analytics";
 
 interface SimilarHit {
   id: string;
@@ -122,6 +123,11 @@ export default function EventDetailRoute() {
     if (typeof navigator.share === "function") {
       try {
         await navigator.share(shareData);
+        trackEvent("share", {
+          method: "web_share",
+          content_type: "event",
+          item_id: event.id,
+        });
         return;
       } catch (err) {
         if ((err as DOMException)?.name === "AbortError") return;
@@ -129,6 +135,11 @@ export default function EventDetailRoute() {
     }
     try {
       await navigator.clipboard.writeText(url);
+      trackEvent("share", {
+        method: "clipboard",
+        content_type: "event",
+        item_id: event.id,
+      });
       setShareStatus("copied");
       setTimeout(() => setShareStatus("idle"), 2000);
     } catch {
@@ -152,6 +163,15 @@ export default function EventDetailRoute() {
   useEffect(() => {
     document.querySelector("main")?.scrollTo(0, 0);
   }, [eventId]);
+
+  useEffect(() => {
+    if (!event) return;
+    trackEvent("view_event", {
+      event_id: event.id,
+      event_title: event.title,
+      party: event.parties[0] ?? null,
+    });
+  }, [event]);
 
   const similarEvents = useMemo(() => {
     if (!similar || !events) return null;

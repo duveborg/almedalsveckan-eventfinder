@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { trackEvent } from '../analytics'
 
 interface ScheduleState {
   savedIds: string[]
@@ -15,11 +16,17 @@ export const useSchedule = create<ScheduleState>()(
       savedIds: [],
       has: (id) => get().savedIds.includes(id),
       toggle: (id) =>
-        set((s) => ({
-          savedIds: s.savedIds.includes(id)
-            ? s.savedIds.filter((x) => x !== id)
-            : [...s.savedIds, id],
-        })),
+        set((s) => {
+          const removing = s.savedIds.includes(id)
+          trackEvent(removing ? 'remove_from_schedule' : 'add_to_schedule', {
+            event_id: id,
+          })
+          return {
+            savedIds: removing
+              ? s.savedIds.filter((x) => x !== id)
+              : [...s.savedIds, id],
+          }
+        }),
       clear: () => set({ savedIds: [] }),
       bulkAdd: (ids) => {
         const existing = new Set(get().savedIds)
@@ -32,6 +39,7 @@ export const useSchedule = create<ScheduleState>()(
         }
         if (fresh.length === 0) return 0
         set((s) => ({ savedIds: [...s.savedIds, ...fresh] }))
+        trackEvent('bulk_add_to_schedule', { count: fresh.length })
         return fresh.length
       },
     }),

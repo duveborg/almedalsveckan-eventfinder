@@ -7,6 +7,7 @@ import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useUrlParam } from '../lib/urlState'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
 import { PageSection } from '../components/PageSection'
+import { trackEvent } from '../analytics'
 
 export default function SearchRoute() {
   useDocumentTitle('Sök')
@@ -22,6 +23,15 @@ export default function SearchRoute() {
     () => (events && query.trim() ? keywordSearch(events, query) : []),
     [events, query],
   )
+
+  useEffect(() => {
+    const term = query.trim()
+    if (!term) return
+    const t = setTimeout(() => {
+      trackEvent('search', { search_term: term, results_count: results.length })
+    }, 800)
+    return () => clearTimeout(t)
+  }, [query, results.length])
 
   if (!events) {
     return (

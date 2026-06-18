@@ -7,6 +7,11 @@ declare global {
   }
 }
 
+/** Sends a custom GA4 event. No-op if analytics hasn't loaded. */
+export function trackEvent(name: string, params?: Record<string, unknown>) {
+  window.gtag?.('event', name, params)
+}
+
 /** Sends a GA4 page_view on every route change (SPA navigation). */
 export function usePageTracking() {
   const location = useLocation()
