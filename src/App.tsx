@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useLocation } from './store/location'
+import { usePageTracking } from './analytics'
 
 const tabs = [
   { to: '/', label: 'Hitta', end: true },
@@ -16,6 +17,7 @@ export default function App() {
   useEffect(() => {
     requestLocation()
   }, [requestLocation])
+  usePageTracking()
 
   return (
     <div className="flex h-[100svh] flex-col">
