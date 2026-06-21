@@ -160,9 +160,6 @@ export default function EventDetailRoute() {
     loadEvents().then(setEvents);
   }, [events]);
 
-  useEffect(() => {
-    document.querySelector("main")?.scrollTo(0, 0);
-  }, [eventId]);
 
   useEffect(() => {
     if (!event) return;
@@ -654,12 +651,12 @@ export default function EventDetailRoute() {
       {similarEvents && similarEvents.length > 0 && (
         <section className="mt-8">
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-fg-dim)]">
-            Liknande event
+            Liknande evenemang
           </h2>
           <ul className="space-y-2">
             {similarEvents.map((e) => (
               <li key={e.id}>
-                <EventCard event={e} />
+                <EventCard event={e} onClick={() => document.querySelector("main")?.scrollTo(0, 0)}/>
               </li>
             ))}
           </ul>

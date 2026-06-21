@@ -8,6 +8,7 @@ import { useLocation } from "../store/location";
 import { formatDistance, haversineMeters } from "../lib/distance";
 interface Props {
   event: EnrichedEvent;
+  onClick: () => void
 }
 
 function formatDuration(totalMin: number): string {
@@ -37,7 +38,7 @@ function relativeMinutes(event: EnrichedEvent, now: Date): string | null {
   return "avslutat";
 }
 
-export function EventCard({ event }: Props) {
+export function EventCard({ event, onClick }: Props) {
   const saved = useSchedule((s) => s.savedIds.includes(event.id));
   const toggle = useSchedule((s) => s.toggle);
   const savedEvents = useSavedEvents();
@@ -65,6 +66,7 @@ export function EventCard({ event }: Props) {
       <Link
         to={`/event/${encodeURIComponent(event.id)}`}
         className="block p-4 pr-12"
+        onClick={onClick}
       >
         {relative && (
           <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
