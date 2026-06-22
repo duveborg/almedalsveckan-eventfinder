@@ -104,7 +104,7 @@ function chosenWindow(
         : new Date("2026-06-22T08:00:00+02:00");
     return {
       start: base,
-      end: new Date(base.getTime() + 3 * 60 * 60_000),
+      end: new Date(base.getTime() + 8 * 60 * 60_000),
     };
   }
   return {
