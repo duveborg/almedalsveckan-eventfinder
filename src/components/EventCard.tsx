@@ -8,7 +8,7 @@ import { useLocation } from "../store/location";
 import { formatDistance, haversineMeters } from "../lib/distance";
 interface Props {
   event: EnrichedEvent;
-  onClick: () => void
+  onClick?: () => void
 }
 
 function formatDuration(totalMin: number): string {
