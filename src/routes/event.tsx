@@ -123,9 +123,8 @@ export default function EventDetailRoute() {
     if (typeof navigator.share === "function") {
       try {
         await navigator.share(shareData);
-        trackEvent("share", {
+        trackEvent("share_event", {
           method: "web_share",
-          content_type: "event",
           item_id: event.id,
         });
         return;
@@ -135,9 +134,8 @@ export default function EventDetailRoute() {
     }
     try {
       await navigator.clipboard.writeText(url);
-      trackEvent("share", {
+      trackEvent("share_event", {
         method: "clipboard",
-        content_type: "event",
         item_id: event.id,
       });
       setShareStatus("copied");

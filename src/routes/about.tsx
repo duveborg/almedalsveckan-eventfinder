@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
 import { PageSection } from '../components/PageSection'
+import { trackEvent } from '../analytics'
 
 export default function AboutRoute() {
   useDocumentTitle('Om')
@@ -15,6 +16,7 @@ export default function AboutRoute() {
     if (navigator.share) {
       try {
         await navigator.share(shareData)
+        trackEvent('share_site', { method: 'web_share' })
         return
       } catch {
         // user cancelled — fall through to clipboard
@@ -22,6 +24,7 @@ export default function AboutRoute() {
     }
     try {
       await navigator.clipboard.writeText(shareData.url)
+      trackEvent('share_site', { method: 'clipboard' })
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {

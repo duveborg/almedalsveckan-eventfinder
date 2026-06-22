@@ -12,6 +12,7 @@ import { useRobots } from '../lib/useRobots'
 import { downloadIcs } from '../lib/ics'
 import { overlaps } from '../lib/overlap'
 import { PageSection } from '../components/PageSection'
+import { trackEvent } from '../analytics'
 
 const WEEK_DAYS = [
   { date: '2026-06-22', label: 'Mån' },
@@ -144,6 +145,10 @@ export default function ScheduleRoute() {
     if (navigator.share) {
       try {
         await navigator.share(shareData)
+        trackEvent('share_schedule', {
+          method: 'web_share',
+          item_count: savedIds.length,
+        })
         return
       } catch {
         // user cancelled — fall through to clipboard
@@ -151,6 +156,10 @@ export default function ScheduleRoute() {
     }
     try {
       await navigator.clipboard.writeText(url)
+      trackEvent('share_schedule', {
+        method: 'clipboard',
+        item_count: savedIds.length,
+      })
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
@@ -229,7 +238,13 @@ export default function ScheduleRoute() {
               </button>
               <button
                 type="button"
-                onClick={() => downloadIcs(savedEvents, 'almedalen-mitt-schema.ics')}
+                onClick={() => {
+                  downloadIcs(savedEvents, 'almedalen-mitt-schema.ics')
+                  trackEvent('export_schedule', {
+                    method: 'ics',
+                    item_count: savedEvents.length,
+                  })
+                }}
                 className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]"
               >
                 Exportera till kalender
@@ -350,6 +365,12 @@ export default function ScheduleRoute() {
             href={routeUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              trackEvent('view_route', {
+                day,
+                stop_count: forDay.length,
+              })
+            }
             className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm font-medium text-[var(--color-fg)] hover:bg-[var(--color-border)]"
           >
             Visa dagens rutt i Google Maps
