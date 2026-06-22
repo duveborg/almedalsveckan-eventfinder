@@ -52,7 +52,7 @@ export default function App() {
       <main className="min-h-0 flex-1 overflow-y-auto">
         <Outlet />
       </main>
-      <nav className="border-t border-[var(--color-border)] bg-[var(--color-surface)] pt-2 pb-2 md:hidden">
+      <nav className="border-t border-[var(--color-border)] bg-[var(--color-surface)] pt-2 pb-4 md:hidden">
         <ul className="mx-auto flex max-w-md justify-center gap-6">
           {tabs.map((tab) => (
             <li key={tab.to}>
