@@ -26,6 +26,12 @@ const DAY_LABEL_BY_DATE: Record<string, string> = Object.fromEntries(
   WEEK_DAYS.map((d) => [d.date, d.label]),
 )
 
+function defaultDay(): string {
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  return WEEK_DAYS.some((d) => d.date === today) ? today : WEEK_DAYS[0].date
+}
+
 function formatTime(iso: string): string {
   const d = new Date(iso)
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
@@ -36,6 +42,7 @@ function suggestNext(
   all: EnrichedEvent[],
   date: string,
   savedIds: string[],
+  now: number,
 ): { for: EnrichedEvent; next: EnrichedEvent; gapMin: number; meters: number | null }[] {
   const out: {
     for: EnrichedEvent
@@ -52,7 +59,8 @@ function suggestNext(
         (e) =>
           e.date === date &&
           !savedIds.includes(e.id) &&
-          e.id !== s.id,
+          e.id !== s.id &&
+          new Date(e.endISO).getTime() > now,
       )
       .map((e) => {
         const eStart = new Date(e.startISO).getTime()
@@ -87,7 +95,7 @@ export default function ScheduleRoute() {
   useDocumentTitle('Ditt schema')
   useRobots('noindex')
   const [events, setEvents] = useState<EnrichedEvent[] | null>(() => getEventsSync())
-  const [day, setDay] = useUrlParam('day', WEEK_DAYS[0].date)
+  const [day, setDay] = useUrlParam('day', defaultDay())
   const savedIds = useSchedule((s) => s.savedIds)
   const bulkAdd = useSchedule((s) => s.bulkAdd)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -197,7 +205,7 @@ export default function ScheduleRoute() {
   }, [forDay])
 
   const suggestions = useMemo(
-    () => (events ? suggestNext(savedEvents, events, day, savedIds) : []),
+    () => (events ? suggestNext(savedEvents, events, day, savedIds, Date.now()) : []),
     [savedEvents, events, day, savedIds],
   )
   const visibleSuggestions = suggestions.filter(
