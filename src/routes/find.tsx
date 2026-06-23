@@ -7,6 +7,7 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useUrlParam, useUrlSet } from "../lib/urlState";
 import { now } from "../lib/now";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
+import { useCanonical } from "../lib/useCanonical";
 import { PageSection } from "../components/PageSection";
 
 function topTopics(events: EnrichedEvent[], n: number): string[] {
@@ -115,6 +116,7 @@ function chosenWindow(
 
 export default function FindRoute() {
   useDocumentTitle("Hitta evenemang");
+  useCanonical("/");
   const [events, setEvents] = useState<EnrichedEvent[] | null>(() => getEventsSync());
   const [error, setError] = useState<string | null>(null);
   const [dateParam, setDateParam] = useUrlParam("date", "");
