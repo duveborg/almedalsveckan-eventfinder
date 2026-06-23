@@ -67,8 +67,16 @@ function eventJsonLd(e: EnrichedEvent): string {
     endDate: e.endISO,
     eventStatus: 'https://schema.org/EventScheduled',
     url,
+    // Every event shares the site's social image — better than omitting `image`,
+    // which Google flags as a missing recommended field.
+    image: `${SITE_URL}/og.jpg`,
   }
-  if (e.description) ld.description = e.description
+  // Always emit a description: fall back to socialIssue, then the generated
+  // head line, so no event is missing this recommended field.
+  const description = (e.description || e.socialIssue || eventDescription(e))
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (description) ld.description = description
   // Google requires `location` on Event — fall back to location.description
   // (often the venue name) and, failing that, to Visby where all events are held.
   const desc = e.location?.description
@@ -99,7 +107,33 @@ function eventJsonLd(e: EnrichedEvent): string {
       : 'https://schema.org/OfflineEventAttendanceMode'
   }
   if (e.organizer?.length) {
-    ld.organizer = e.organizer.map((name) => ({ '@type': 'Organization', name }))
+    // Best-effort organizer website: prefer the event's primary external link,
+    // then social links, so the recommended `organizer.url` field is present.
+    const orgUrl =
+      e.urls?.url1 ||
+      e.urls?.facebookUrl ||
+      e.urls?.linkedinUrl ||
+      e.urls?.instagramUrl ||
+      null
+    ld.organizer = e.organizer.map((name, i) =>
+      i === 0 && orgUrl
+        ? { '@type': 'Organization', name, url: orgUrl }
+        : { '@type': 'Organization', name },
+    )
+  }
+  // Speakers → performers.
+  const performers = (e.persons ?? [])
+    .filter((p) => p.name?.trim())
+    .map((p) => ({ '@type': 'Person', name: p.name.trim() }))
+  if (performers.length) ld.performer = performers
+  // Almedalsveckan events are free and open to the public.
+  ld.offers = {
+    '@type': 'Offer',
+    price: 0,
+    priceCurrency: 'SEK',
+    availability: 'https://schema.org/InStock',
+    url,
+    validFrom: e.startISO,
   }
   return `<script type="application/ld+json">${JSON.stringify(ld)
     .replace(/</g, '\\u003c')}</script>`
