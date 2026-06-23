@@ -114,12 +114,12 @@ export default function MapRoute() {
 
   const filtered = useMemo(() => {
     const t = now.getTime()
-    const windowEnd = t + 3 * 60 * 60 * 1000
+    const windowEnd = t + 60 * 60 * 1000
     return (events ?? []).filter((e) => {
       if (selectedDay) {
         if (e.date !== selectedDay) return false
       } else {
-        // "Nu": ongoing events plus everything starting within the next 3h.
+        // "Nu": ongoing events plus everything starting within the next hour.
         const start = new Date(e.startISO).getTime()
         const end = new Date(e.endISO).getTime()
         if (end < t || start > windowEnd) return false
