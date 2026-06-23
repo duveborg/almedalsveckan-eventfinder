@@ -227,6 +227,7 @@ export default function FindRoute() {
   const partyChips = useMemo(() => topParties(events ?? [], 40), [events]);
   const visibleOrganizers = organizerChips.slice(0, organizerLimit);
 
+  const nuMode = selectedDate === null;
   const visible = useMemo(() => {
     if (!events) return [];
     const startMs = cursor.getTime();
@@ -235,7 +236,12 @@ export default function FindRoute() {
       .filter((e) => {
         const s = new Date(e.startISO).getTime();
         const eEnd = new Date(e.endISO).getTime();
-        if (s < startMs || eEnd > endMs) return false;
+        // "Nu" uses overlap semantics so events already in progress show up
+        // alongside upcoming ones; other views keep containment semantics so an
+        // event must fit entirely within the chosen day/hour window.
+        if (nuMode) {
+          if (eEnd <= startMs || s >= endMs) return false;
+        } else if (s < startMs || eEnd > endMs) return false;
         if (foodOnly && !hasFood(e)) return false;
         if (activeTopics.size > 0 && !e.topics.some((t) => activeTopics.has(t)))
           return false;
@@ -264,6 +270,7 @@ export default function FindRoute() {
     events,
     cursor,
     cursorEnd,
+    nuMode,
     foodOnly,
     activeTopics,
     activeEventTypes,
