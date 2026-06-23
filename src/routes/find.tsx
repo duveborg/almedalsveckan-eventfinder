@@ -123,6 +123,7 @@ export default function FindRoute() {
   const [hourParam, setHourParam] = useUrlParam("h", String(HOUR_MIN));
   const [hourEndParam, setHourEndParam] = useUrlParam("h2", String(HOUR_MAX));
   const [foodParam, setFoodParam] = useUrlParam("food", "0");
+  const [hideLongParam, setHideLongParam] = useUrlParam("nolong", "0");
   const [activeTopics, setActiveTopics] = useUrlSet("topics");
   const [activeEventTypes, setActiveEventTypes] = useUrlSet("types");
   const [activeOrganizers, setActiveOrganizers] = useUrlSet("organizer");
@@ -142,6 +143,7 @@ export default function FindRoute() {
   const hourStart = Number(hourParam) || HOUR_MIN;
   const hourEnd = Number(hourEndParam) || HOUR_MAX;
   const foodOnly = foodParam === "1";
+  const hideLong = hideLongParam === "1";
   const setSelectedDate = (v: string | null) => setDateParam(v ?? "");
   const setHourStart = (v: number) => {
     const clamped = Math.max(HOUR_MIN, Math.min(v, hourEnd - 1));
@@ -152,6 +154,7 @@ export default function FindRoute() {
     setHourEndParam(String(clamped));
   };
   const setFoodOnly = (v: boolean) => setFoodParam(v ? "1" : "0");
+  const setHideLong = (v: boolean) => setHideLongParam(v ? "1" : "0");
   const toggleTopic = (t: string) => {
     const next = new Set(activeTopics);
     if (next.has(t)) next.delete(t);
@@ -198,6 +201,7 @@ export default function FindRoute() {
     hourStart,
     hourEnd,
     foodOnly,
+    hideLong,
     [...activeTopics],
     [...activeEventTypes],
     [...activeOrganizers],
@@ -245,6 +249,8 @@ export default function FindRoute() {
           if (eEnd <= startMs || s >= endMs) return false;
         } else if (s < startMs || eEnd > endMs) return false;
         if (foodOnly && !hasFood(e)) return false;
+        if (hideLong && e.durationMin != null && e.durationMin > 180)
+          return false;
         if (activeTopics.size > 0 && !e.topics.some((t) => activeTopics.has(t)))
           return false;
         if (
@@ -274,6 +280,7 @@ export default function FindRoute() {
     cursorEnd,
     nuMode,
     foodOnly,
+    hideLong,
     activeTopics,
     activeEventTypes,
     activeOrganizers,
@@ -562,7 +569,7 @@ export default function FindRoute() {
             </div>
           </div>
         )}
-        <div className="px-4 pb-3 text-[13px]">
+        <div className="flex flex-wrap gap-x-4 gap-y-2 px-4 pb-3 text-[13px]">
           <label className="inline-flex cursor-pointer items-center gap-2 text-[var(--color-fg-dim)]">
             <input
               type="checkbox"
@@ -571,6 +578,15 @@ export default function FindRoute() {
               className="h-3.5 w-3.5 accent-[var(--color-accent)]"
             />
             Endast med mat
+          </label>
+          <label className="inline-flex cursor-pointer items-center gap-2 text-[var(--color-fg-dim)]">
+            <input
+              type="checkbox"
+              checked={hideLong}
+              onChange={(e) => setHideLong(e.target.checked)}
+              className="h-3.5 w-3.5 accent-[var(--color-accent)]"
+            />
+            Dölj heldagsevenemang
           </label>
         </div>
       </header>
